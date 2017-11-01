@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Basic Stuff RecyclerView</string>
+    <string name="author_x">Author : \'"%1$s"\'</string>
+    <string name="message_x">Message : "%1$s"</string>
+    <string name="year">Year</string>
+    <string name="month">Month</string>
+    <string name="day">Day</string>
+    <string name="text_before_header">Text at the top</string>
+    <string name="random_header_tree">Random hierarchy</string>
+    <string name="custom_sticky_header_text">Custom Sticky header layout</string>
+    <string name="show_dividers">Dividers</string>
+    <string name="show_sticky_headers">Sticky headers</string>
+    <string name="show_first_last_decoration">First/last decoration</string>
+    <string name="random_values">Random values</string>
+    <string name="happy_new_year_x">Happy new year %1$s !</string>
+</resources>

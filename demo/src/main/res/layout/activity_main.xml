@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.sokarcreative.basicstuffrecyclerview.MainActivity">
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:orientation="vertical"
+        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+    <LinearLayout
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:orientation="vertical"
+        android:background="#64ffffff">
+        <CheckBox
+            android:id="@+id/checkBoxShowStickyHeader"
+            android:onClick="onNotifyDataSetChangedClick"
+            android:text="@string/show_sticky_headers"
+            android:checked="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <CheckBox
+            android:id="@+id/checkBoxShowDivider"
+            android:onClick="onNotifyDataSetChangedClick"
+            android:text="@string/show_dividers"
+            android:checked="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <CheckBox
+            android:id="@+id/checkBoxShowFirstLastDecoration"
+            android:onClick="onNotifyDataSetChangedClick"
+            android:text="@string/show_first_last_decoration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <CheckBox
+            android:id="@+id/checkboxShowCustomStickyHeader"
+            android:onClick="onNotifyDataSetChangedClick"
+            android:text="@string/custom_sticky_header_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <CheckBox
+            android:id="@+id/checkboxH1"
+            android:onClick="onRandomValuesClick"
+            android:text="@string/year"
+            android:checked="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <CheckBox
+            android:id="@+id/checkboxH2"
+            android:onClick="onRandomValuesClick"
+            android:text="@string/month"
+            android:checked="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <CheckBox
+            android:id="@+id/checkboxH3"
+            android:onClick="onRandomValuesClick"
+            android:text="@string/day"
+            android:checked="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <CheckBox
+            android:id="@+id/checkboxContentBeforeHeader"
+            android:onClick="onRandomValuesClick"
+            android:text="@string/text_before_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <CheckBox
+            android:id="@+id/checkboxRandomHeader"
+            android:onClick="onRandomValuesClick"
+            android:text="@string/random_header_tree"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/buttonRandomContent"
+            android:onClick="onRandomValuesClick"
+            android:text="@string/random_values"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"/>
+    </LinearLayout>
+</RelativeLayout>
