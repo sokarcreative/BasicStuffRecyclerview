@@ -25,7 +25,7 @@ import android.view.ViewGroup
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-class BasicStuffItemDecoration(adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>) : RecyclerView.ItemDecoration(), RecyclerView.OnItemTouchListener {
+class BasicStuffItemDecoration(adapter: RecyclerView.Adapter<*>) : RecyclerView.ItemDecoration(), RecyclerView.OnItemTouchListener {
 
     private var mStickyHeaderInfo: StickyHeaderInfo? = null
 
