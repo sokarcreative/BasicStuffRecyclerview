@@ -19,7 +19,7 @@ import android.view.View
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- abstract class BasicStuffAdapter<VH : RecyclerView.ViewHolder> : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+ abstract class BasicStuffAdapter<VH : RecyclerView.ViewHolder> : RecyclerView.Adapter<VH>() {
 
     /**
      * @return the decoration at the top of the first viewHolder which has the given [viewType].
