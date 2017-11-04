@@ -452,8 +452,8 @@ class BasicStuffItemDecoration(adapter: RecyclerView.Adapter<*>) : RecyclerView.
 
         private fun drawHorizontalFirstDecoration(canvas: Canvas, view: View, firstDecoration: Drawable, parentTop: Int, parentBottom: Int) {
 
-            val parentLeft = view.left
-            val parentRight = parentLeft + firstDecoration.intrinsicWidth
+            val parentLeft = (view.left - firstDecoration.intrinsicWidth + view.translationX).toInt()
+            val parentRight = parentLeft
 
             firstDecoration.setBounds(parentLeft, parentTop, parentRight, parentBottom)
             firstDecoration.draw(canvas)
@@ -461,7 +461,7 @@ class BasicStuffItemDecoration(adapter: RecyclerView.Adapter<*>) : RecyclerView.
 
         private fun drawHorizontalDivider(canvas: Canvas, view: View, divider: Drawable, parentTop: Int, parentBottom: Int) {
 
-            val parentLeft = view.right
+            val parentLeft = (view.right + view.translationX).toInt()
             val parentRight = parentLeft + divider.intrinsicWidth
 
             divider.setBounds(parentLeft, parentTop, parentRight, parentBottom)
@@ -471,7 +471,7 @@ class BasicStuffItemDecoration(adapter: RecyclerView.Adapter<*>) : RecyclerView.
 
         private fun drawVerticalFirstDecoration(canvas: Canvas, view: View, firstDecoration: Drawable, parentLeft: Int, parentRight: Int) {
 
-            val parentTop = view.top - firstDecoration.intrinsicHeight
+            val parentTop = (view.top - firstDecoration.intrinsicHeight + view.translationY).toInt()
             val parentBottom = view.top
 
             firstDecoration.setBounds(parentLeft, parentTop, parentRight, parentBottom)
@@ -480,7 +480,7 @@ class BasicStuffItemDecoration(adapter: RecyclerView.Adapter<*>) : RecyclerView.
 
         private fun drawVerticalDivider(canvas: Canvas, view: View, divider: Drawable, parentLeft: Int, parentRight: Int) {
 
-            val parentTop = view.bottom
+            val parentTop = (view.bottom + view.translationY).toInt()
             val parentBottom = parentTop + divider.intrinsicHeight
 
             divider.setBounds(parentLeft, parentTop, parentRight, parentBottom)
