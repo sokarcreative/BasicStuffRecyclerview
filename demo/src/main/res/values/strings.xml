@@ -13,4 +13,5 @@
     <string name="show_first_last_decoration">First/last decoration</string>
     <string name="random_values">Random values</string>
     <string name="happy_new_year_x">Happy new year %1$s !</string>
+    <string name="draggable_under_day">Content draggable under day</string>
 </resources>

@@ -19,20 +19,20 @@ import java.util.*
 /**
 * Created by sokarcreative on 29/10/2017.
 */
-class DemoAdapter(private var items: List<Any>, private val activity: MainActivity) : BasicStuffAdapter<RecyclerView.ViewHolder>() {
+class DemoAdapter(private var objects: MutableList<Any>, private val activity: MainActivity) : BasicStuffAdapter<RecyclerView.ViewHolder>() {
 
     private val VIEW_TYPE_CONTENT = 0
     private val VIEW_TYPE_TITLE_H1 = 1
     private val VIEW_TYPE_TITLE_H2 = 2
     private val VIEW_TYPE_TITLE_H3 = 3
 
-    fun refresh(items: List<Any>) {
-        this.items = items
+    fun refresh(items: MutableList<Any>) {
+        this.objects = items
         notifyDataSetChanged()
     }
 
     override fun getItemViewType(position: Int): Int {
-        val `object` = items[position]
+        val `object` = objects[position]
         return if (`object` is Message) {
             VIEW_TYPE_CONTENT
         } else {
@@ -64,7 +64,7 @@ class DemoAdapter(private var items: List<Any>, private val activity: MainActivi
 
     private fun onBindTitleViewHolder(holder: TitleViewHolder, position: Int) {
         val calendar = Calendar.getInstance()
-        calendar.timeInMillis = (items[position] as TitleH).timeInMillis
+        calendar.timeInMillis = (objects[position] as TitleH).timeInMillis
         when (getItemViewType(position)) {
             VIEW_TYPE_TITLE_H3 -> holder.itemView.textViewTitle.text = Util.simpleDateFormatDay.format(calendar.time)
             VIEW_TYPE_TITLE_H2 -> holder.itemView.textViewTitle.text = Util.simpleDateFormatMonth.format(calendar.time)
@@ -73,13 +73,13 @@ class DemoAdapter(private var items: List<Any>, private val activity: MainActivi
     }
 
     private fun onBindContentViewHolder(holder: ContentViewHolder, position: Int) {
-        val message = items[position] as Message
+        val message = objects[position] as Message
         holder.itemView.textViewAuthor.text = activity.getString(R.string.author_x, message.author)
         holder.itemView.textViewMessage!!.text = activity.getString(R.string.message_x, message.message)
     }
 
     override fun getItemCount(): Int {
-        return items.size
+        return objects.size
     }
 
     /**
@@ -90,9 +90,8 @@ class DemoAdapter(private var items: List<Any>, private val activity: MainActivi
      * @see .isStickyHeader
      */
     override fun isStickyHeader(viewType: Int): Boolean {
-        return activity.checkBoxShowStickyHeader.isChecked && viewType != VIEW_TYPE_CONTENT
+        return activity.checkBoxShowStickyHeader.isChecked && isHeader(viewType)
     }
-
 
     override fun getFirstDecoration(viewType: Int): Drawable? {
         return if (activity.checkBoxShowFirstLastDecoration.isChecked) ContextCompat.getDrawable(activity, R.drawable.smart_first_decoration) else null
@@ -152,7 +151,7 @@ class DemoAdapter(private var items: List<Any>, private val activity: MainActivi
             val textViewTitle : TextView = stickyView.findViewById(R.id.textViewTitle)
 
             val calendar = Calendar.getInstance()
-            calendar.timeInMillis = (items[position] as TitleH).timeInMillis
+            calendar.timeInMillis = (objects[position] as TitleH).timeInMillis
             when (getItemViewType(position)) {
                 VIEW_TYPE_TITLE_H3 -> textViewTitle.text = Util.simpleDateFormatDayCustom.format(calendar.time)
                 VIEW_TYPE_TITLE_H2 -> textViewTitle.text = Util.simpleDateFormatMonthCustom.format(calendar.time)
@@ -189,6 +188,22 @@ class DemoAdapter(private var items: List<Any>, private val activity: MainActivi
             }
         }
         rootView.setPadding(paddingStartEnd, marginTopBottom, paddingStartEnd, marginTopBottom)
+    }
+
+    override fun getItems(): MutableList<Any>? {
+        return objects
+    }
+
+    override fun isDraggable(viewType: Int): Boolean {
+        return activity.checkboxDraggableUnderDay.isChecked && viewType == VIEW_TYPE_CONTENT
+    }
+
+    override fun allowMove(viewTypeDraggable: Int, headerViewType: Int): Boolean {
+        return viewTypeDraggable == VIEW_TYPE_CONTENT && headerViewType == VIEW_TYPE_TITLE_H3
+    }
+
+    override fun isHeader(viewType: Int): Boolean {
+        return viewType != VIEW_TYPE_CONTENT
     }
 
 }

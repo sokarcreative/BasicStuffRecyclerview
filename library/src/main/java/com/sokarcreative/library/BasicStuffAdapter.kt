@@ -21,6 +21,10 @@ import android.view.View
  */
  abstract class BasicStuffAdapter<VH : RecyclerView.ViewHolder> : RecyclerView.Adapter<VH>() {
 
+    /************
+     * Dividers *
+     ************/
+
     /**
      * @return the decoration at the top of the first viewHolder which has the given [viewType].
      */
@@ -62,6 +66,9 @@ import android.view.View
         return null
     }
 
+    /******************
+     * Sticky headers *
+     ******************/
 
     /**
      * @return true if the [viewType] should be a sticky header.
@@ -86,6 +93,29 @@ import android.view.View
      */
     open fun onStickyViewClick(parent: RecyclerView, position: Int) {
         parent.scrollToPosition(position)
+    }
+
+    /********
+     * Drag *
+     ********/
+
+    open fun getItems() : MutableList<Any>?{
+        return null
+    }
+
+    open fun isDraggable(viewType: Int) : Boolean{
+        return false
+    }
+
+    open fun isHeader(viewType: Int) : Boolean{
+        return false
+    }
+
+    open fun allowMove(viewTypeDraggable: Int, headerViewType: Int) : Boolean{
+        return false
+    }
+    open fun allowOnlyForSameHeaderAsSource(viewTypeDraggable : Int, headerViewType: Int) : Boolean{
+        return false
     }
 
 }

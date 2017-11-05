@@ -2,13 +2,17 @@ package com.sokarcreative.basicstuffrecyclerview
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.helper.ItemTouchHelper
 import android.view.View
 import android.widget.CheckBox
+import android.widget.Switch
 import com.sokarcreative.basicstuffrecyclerview.models.Message
 import com.sokarcreative.basicstuffrecyclerview.models.TitleH
 import com.sokarcreative.library.BasicStuffItemDecoration
+import com.sokarcreative.library.BasicStuffItemTouchHelperCallback
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,6 +28,8 @@ class MainActivity : AppCompatActivity() {
         val basicStuffItemDecoration = BasicStuffItemDecoration(mDemoAdapter!!)
         recyclerView?.addItemDecoration(basicStuffItemDecoration)
         recyclerView?.addOnItemTouchListener(basicStuffItemDecoration)
+        val itemTouchHelper = ItemTouchHelper(BasicStuffItemTouchHelperCallback())
+        itemTouchHelper.attachToRecyclerView(recyclerView)
     }
 
 
@@ -42,7 +48,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun randomValues(): List<Any> {
+    fun onSettingsClick(view : View){
+        if(view is Switch){
+            linearLayoutSettings.visibility = if(view.isChecked) View.VISIBLE else View.INVISIBLE
+        }
+    }
+
+    private fun randomValues(): MutableList<Any> {
         val items = ArrayList<Any>()
         val c = Calendar.getInstance()
         val currentYear = c.get(Calendar.YEAR)
@@ -65,7 +77,7 @@ class MainActivity : AppCompatActivity() {
                             if (shouldDisplayH(checkboxH3.isChecked, checkboxRandomHeader.isChecked)) items.add(TitleH(TitleH.H3, c.timeInMillis))
                             val randomContentLength = Util.randInt(1, 10)
                             for (x in 0 until randomContentLength) {
-                                items.add(Message("Walt", "Here is a message"))
+                                items.add(Message("Walt", "Here is a message " + x))
                             }
                         }
                     }
