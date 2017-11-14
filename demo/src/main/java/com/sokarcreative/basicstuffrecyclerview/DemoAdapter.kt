@@ -19,14 +19,14 @@ import java.util.*
 /**
 * Created by sokarcreative on 29/10/2017.
 */
-class DemoAdapter(private var objects: MutableList<Any>, private val activity: MainActivity) : BasicStuffAdapter<RecyclerView.ViewHolder>() {
+class DemoAdapter(private var objects: ArrayList<Any>, private val activity: MainActivity) : BasicStuffAdapter<RecyclerView.ViewHolder>() {
 
     private val VIEW_TYPE_CONTENT = 0
     private val VIEW_TYPE_TITLE_H1 = 1
     private val VIEW_TYPE_TITLE_H2 = 2
     private val VIEW_TYPE_TITLE_H3 = 3
 
-    fun refresh(items: MutableList<Any>) {
+    fun refresh(items: ArrayList<Any>) {
         this.objects = items
         notifyDataSetChanged()
     }
@@ -190,7 +190,7 @@ class DemoAdapter(private var objects: MutableList<Any>, private val activity: M
         rootView.setPadding(paddingStartEnd, marginTopBottom, paddingStartEnd, marginTopBottom)
     }
 
-    override fun getItems(): MutableList<Any>? {
+    override fun getItems(): ArrayList<Any>? {
         return objects
     }
 

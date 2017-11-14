@@ -63,7 +63,6 @@ class BasicStuffItemDecoration(adapter: RecyclerView.Adapter<*>) : RecyclerView.
             return
         }
         if ((parent.layoutManager as LinearLayoutManager).orientation != LinearLayoutManager.VERTICAL) {
-            Log.i(TAG, "StickyHeader only works with vertical orientation")
             return
         }
 

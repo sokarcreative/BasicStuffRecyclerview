@@ -86,7 +86,7 @@ class BasicStuffItemTouchHelperCallback : ItemTouchHelper.Callback() {
                 adapter.notifyItemMoved(source.adapterPosition, target.adapterPosition)
             }
             else{
-                val tmp : Any = adapter.getItems()!![source.adapterPosition]
+                val tmp = adapter.getItems()!![source.adapterPosition]
                 adapter.getItems()!!.removeAt(source.adapterPosition)
                 adapter.getItems()!!.add(target.adapterPosition, tmp)
                 adapter.notifyItemMoved(source.adapterPosition, target.adapterPosition)
@@ -97,6 +97,9 @@ class BasicStuffItemTouchHelperCallback : ItemTouchHelper.Callback() {
     }
 
     private fun canMoveToTarget(adapter: BasicStuffAdapter<*>, viewHolderSource : RecyclerView.ViewHolder, viewHolderTarget : RecyclerView.ViewHolder) : Boolean{
+        if(viewHolderTarget.adapterPosition == 0 && !adapter.isDraggable(adapter.getItemViewType(viewHolderTarget.adapterPosition))){
+            return false
+        }
         var i = if(viewHolderTarget.adapterPosition > 0 && viewHolderTarget.adapterPosition < viewHolderSource.adapterPosition) viewHolderTarget.adapterPosition-1 else viewHolderTarget.adapterPosition
         while (i >= 0){
             if(adapter.isHeader(adapter.getItemViewType(i))){

@@ -99,7 +99,7 @@ import android.view.View
      * Drag *
      ********/
 
-    open fun getItems() : MutableList<Any>?{
+    open fun getItems() : ArrayList<Any>?{
         return null
     }
 

@@ -12,6 +12,7 @@ import com.sokarcreative.library.BasicStuffItemDecoration
 import com.sokarcreative.library.BasicStuffItemTouchHelperCallback
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity() {
@@ -54,7 +55,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun randomValues(): MutableList<Any> {
+    private fun randomValues(): ArrayList<Any> {
         val items = ArrayList<Any>()
         val c = Calendar.getInstance()
         val currentYear = c.get(Calendar.YEAR)
