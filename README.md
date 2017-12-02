@@ -13,6 +13,11 @@ Features
 * Set first/last decorations depending on first/last viewHolder (only for LinearLayoutManager).
 * Set Sticky headers depending on viewTypes and custom them (or not). (only for LinearLayoutManager in vertical orientation).
 * Allow handling click event on sticky header (only for LinearLayoutManager in vertical orientation).
+* Allow Drag & Drop depending on viewTypes. Allow to move under specific headers from same viewTypes or not.
+
+Minor ui issue known
+============
+* When combining Sticky Headers and Drag & Drop, when you drag quickly a viewHolder over an header which is not the current sticky header, this one changes quickly with the header you are overlapping for a few milliseconds. I have no time right now to understand this strange behaviour but don't hesitate to pull a request if you can solve it :D. That's the only reason why the latest version is in alpha.
 
 Usage
 ============
@@ -20,7 +25,7 @@ Usage
 In your app `build.gradle`:
 
 ```
-implementation 'com.github.sokarcreative:BasicStuffRecyclerview:0.1.0'
+implementation 'com.github.sokarcreative:BasicStuffRecyclerview:$latest_version'
 ```
 In your project `build.gradle`:
 ```
@@ -89,6 +94,35 @@ public View onCreateAndBindStickyView(@NotNull RecyclerView parent, int position
 @Override
 public void onStickyViewClick(@NotNull RecyclerView parent, int position) {
     super.onStickyViewClick(parent, position);
+}
+
+```
+## Drag & Drop
+```
+@Nullable
+@Override
+public ArrayList<Object> getItems() {
+    return super.getItems();
+}
+
+@Override
+public boolean isDraggable(int viewType) {
+    return super.isDraggable(viewType);
+}
+
+@Override
+public boolean isHeader(int viewType) {
+    return super.isHeader(viewType);
+}
+
+@Override
+public boolean allowMove(int viewTypeDraggable, int headerViewType) {
+    return super.allowMove(viewTypeDraggable, headerViewType);
+}
+
+@Override
+public boolean allowOnlyForSameHeaderAsSource(int viewTypeDraggable, int headerViewType) {
+    return super.allowOnlyForSameHeaderAsSource(viewTypeDraggable, headerViewType);
 }
 ```
 
