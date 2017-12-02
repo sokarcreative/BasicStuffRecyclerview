@@ -6,8 +6,8 @@ package com.sokarcreative.basicstuffrecyclerview.models
 
 class TitleH(val titleType: Int, val timeInMillis: Long) {
     companion object {
-        val H1 = 0
-        val H2 = 1
-        val H3 = 2
+        const val H1 = 0
+        const val H2 = 1
+        const val H3 = 2
     }
 }
