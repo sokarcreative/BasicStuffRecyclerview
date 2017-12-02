@@ -42,6 +42,8 @@ mAdapter = new MyAdapter(context, items); // My adapter who extends BasicStuffAd
 BasicStuffItemDecoration basicStuffItemDecoration = new BasicStuffItemDecoration(mAdapter); 
 recyclerView.addItemDecoration(basicStuffItemDecoration); // ItemDecoration to draw dividers and sticky headers
 recyclerView.addOnItemTouchListener(basicStuffItemDecoration); // Add only if you use sticky header and you want to handle click event
+ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new BasicStuffItemTouchHelperCallback()) // Add only if you use Drag & Drop
+itemTouchHelper.attachToRecyclerView(recyclerView) // Add only if you use Drag & Drop
 ```
 Methods you may override
 ============
