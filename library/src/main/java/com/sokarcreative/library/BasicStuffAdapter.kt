@@ -95,25 +95,41 @@ import android.view.View
         parent.scrollToPosition(position)
     }
 
-    /********
-     * Drag *
-     ********/
+    /***************
+     * Drag & Drop *
+     ***************/
 
+    /**
+     * Items to drag and drop
+     */
     open fun getItems() : ArrayList<Any>?{
         return null
     }
 
+    /**
+     * return true if viewType is draggable
+     */
     open fun isDraggable(viewType: Int) : Boolean{
         return false
     }
 
+    /**
+     * return true if viewType is header
+     */
     open fun isHeader(viewType: Int) : Boolean{
         return false
     }
 
+    /**
+     * Allow move draggable viewType under header viewType
+     */
     open fun allowMove(viewTypeDraggable: Int, headerViewType: Int) : Boolean{
         return false
     }
+
+    /**
+     * Allow draggable viewType to move under the same header viewHolder
+     */
     open fun allowOnlyForSameHeaderAsSource(viewTypeDraggable : Int, headerViewType: Int) : Boolean{
         return false
     }
