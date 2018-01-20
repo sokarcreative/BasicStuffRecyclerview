@@ -10,6 +10,10 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 
+
+
+
+
 /**
  * Copyright (C) 2017 sokarcreative
  *
@@ -44,7 +48,6 @@ class BasicStuffItemDecoration(adapter: RecyclerView.Adapter<*>) : RecyclerView.
         })
     }
 
-
     /**
      * Draw a sticky view into the Canvas at the top of a RecyclerView.
      *
@@ -54,6 +57,7 @@ class BasicStuffItemDecoration(adapter: RecyclerView.Adapter<*>) : RecyclerView.
      */
     override fun onDrawOver(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State?) {
         super.onDrawOver(canvas, parent, state)
+
         if (parent.adapter == null || parent.adapter !is BasicStuffAdapter<*>) {
             Log.e(TAG, "BasicStuffAdapter is missing")
             return
@@ -108,9 +112,7 @@ class BasicStuffItemDecoration(adapter: RecyclerView.Adapter<*>) : RecyclerView.
                     val nextStickyChildDrawable = getNextDecoration(parent, parent.adapter.getItemViewType(positionNextStickyChild))
                     val nextStickyChildDrawableHeight = nextStickyChildDrawable?.intrinsicHeight ?: 0
                     if (nextStickyChild.bottom >= currentTopView.bottom + nextStickyChildDrawableHeight) {
-                        if (positionNextStickyChild != mStickyHeaderInfo!!.position) {
-                            generateNewStickyHeader(parent, positionNextStickyChild)
-                        }
+                        generateNewStickyHeader(parent, positionNextStickyChild)
                         drawStickyView(canvas, parent)
                     } else {
                         moveStickyView(canvas, parent, nextStickyChild)
@@ -118,9 +120,7 @@ class BasicStuffItemDecoration(adapter: RecyclerView.Adapter<*>) : RecyclerView.
                 } else {
                     val positionPreviousStickyChild = findTopHeader(parent, currentPosition)
                     if (positionPreviousStickyChild != RecyclerView.NO_POSITION) {
-                        if (positionPreviousStickyChild != mStickyHeaderInfo!!.position) {
-                            generateNewStickyHeader(parent, positionPreviousStickyChild)
-                        }
+                        generateNewStickyHeader(parent, positionPreviousStickyChild)
                         moveStickyView(canvas, parent, nextStickyChild)
                     } else {
                         mStickyHeaderInfo = null
@@ -129,9 +129,7 @@ class BasicStuffItemDecoration(adapter: RecyclerView.Adapter<*>) : RecyclerView.
             } else {
                 val positionPreviousStickyChild = findTopHeader(parent, currentPosition)
                 if (positionPreviousStickyChild != RecyclerView.NO_POSITION) {
-                    if (positionPreviousStickyChild != mStickyHeaderInfo!!.position) {
-                        generateNewStickyHeader(parent, positionPreviousStickyChild)
-                    }
+                    generateNewStickyHeader(parent, positionPreviousStickyChild)
                     drawStickyView(canvas, parent)
                 } else {
                     mStickyHeaderInfo = null
@@ -159,7 +157,7 @@ class BasicStuffItemDecoration(adapter: RecyclerView.Adapter<*>) : RecyclerView.
      */
     private fun generateNewStickyHeader(parent: RecyclerView, position: Int) {
 
-        val stickyView  = (parent.adapter as BasicStuffAdapter<*>).onCreateAndBindStickyView(parent, position)
+        val stickyView = (parent.adapter as BasicStuffAdapter<*>).onCreateAndBindStickyView(parent, position)
 
         resizeStickyHeader(parent, stickyView)
 
@@ -181,16 +179,16 @@ class BasicStuffItemDecoration(adapter: RecyclerView.Adapter<*>) : RecyclerView.
      * @param nextFuturStickyHeader next potential futur sticky view.
      */
     private fun moveStickyView(canvas: Canvas, parent: RecyclerView, nextFuturStickyHeader: View) {
-        if (mStickyHeaderInfo != null) {
+        mStickyHeaderInfo?.let {
             canvas.save()
-            canvas.translate(0f, (nextFuturStickyHeader.top - (mStickyHeaderInfo!!.stickyView.height + mStickyHeaderInfo!!.dividerHeight)).toFloat())
-            mStickyHeaderInfo!!.stickyView.draw(canvas)
-            mStickyHeaderInfo!!.visibleHeight = nextFuturStickyHeader.top
-            val divider = mStickyHeaderInfo!!.divider
+            canvas.translate(0f, (nextFuturStickyHeader.top - (it.stickyView.height + it.dividerHeight)).toFloat())
+            it.stickyView.draw(canvas)
+            it.visibleHeight = nextFuturStickyHeader.top
+            val divider = it.divider
             if (divider != null) {
                 val parentLeft = parent.paddingLeft
                 val parentRight = parent.width - parent.paddingRight
-                drawVerticalDivider(canvas, mStickyHeaderInfo!!.stickyView, divider, parentLeft, parentRight)
+                drawVerticalDivider(canvas, it.stickyView, divider, parentLeft, parentRight)
             }
             canvas.restore()
         }
@@ -203,16 +201,16 @@ class BasicStuffItemDecoration(adapter: RecyclerView.Adapter<*>) : RecyclerView.
      * @param parent RecyclerView this ItemDecoration is drawing into.
      */
     private fun drawStickyView(canvas: Canvas, parent: RecyclerView) {
-        if (mStickyHeaderInfo != null) {
+        mStickyHeaderInfo?.let {
             canvas.save()
             canvas.translate(0f, 0f)
-            mStickyHeaderInfo!!.stickyView.draw(canvas)
-            mStickyHeaderInfo!!.visibleHeight = mStickyHeaderInfo!!.stickyView.height
-            val divider = mStickyHeaderInfo!!.divider
+            it.stickyView.draw(canvas)
+            it.visibleHeight = it.stickyView.height
+            val divider = it.divider
             if (divider != null) {
                 val parentLeft = parent.paddingLeft
                 val parentRight = parent.width - parent.paddingRight
-                drawVerticalDivider(canvas, mStickyHeaderInfo!!.stickyView, divider, parentLeft, parentRight)
+                drawVerticalDivider(canvas, it.stickyView, divider, parentLeft, parentRight)
             }
             canvas.restore()
         }
