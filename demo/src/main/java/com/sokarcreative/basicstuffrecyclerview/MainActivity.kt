@@ -1,8 +1,10 @@
 package com.sokarcreative.basicstuffrecyclerview
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.helper.ItemTouchHelper
+import android.util.Log
 import android.view.View
 import android.widget.CheckBox
 import android.widget.Switch
@@ -17,33 +19,30 @@ import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
 
-    private var mDemoAdapter: DemoAdapter? = null
+    lateinit var mDemoAdapter: DemoAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        this.mDemoAdapter = DemoAdapter(randomValues(), this)
-
-        recyclerView?.adapter = mDemoAdapter
-        val basicStuffItemDecoration = BasicStuffItemDecoration(mDemoAdapter!!)
-        recyclerView?.addItemDecoration(basicStuffItemDecoration)
-        recyclerView?.addOnItemTouchListener(basicStuffItemDecoration)
+        mDemoAdapter = DemoAdapter(randomValues(), this)
+        val basicStuffItemDecoration = BasicStuffItemDecoration(mDemoAdapter)
+        recyclerView.adapter = mDemoAdapter
+        recyclerView.addItemDecoration(basicStuffItemDecoration)
+        recyclerView.addOnItemTouchListener(basicStuffItemDecoration)
         val itemTouchHelper = ItemTouchHelper(BasicStuffItemTouchHelperCallback())
         itemTouchHelper.attachToRecyclerView(recyclerView)
     }
 
 
-
     fun onNotifyDataSetChangedClick(view: View) {
-        mDemoAdapter?.notifyDataSetChanged()
-        if(view.id == R.id.checkBoxShowFirstLastDecoration && view is CheckBox && view.isChecked && mDemoAdapter!!.itemCount > 0){
+        mDemoAdapter.notifyDataSetChanged()
+        if(view.id == R.id.checkBoxShowFirstLastDecoration && view is CheckBox && view.isChecked && mDemoAdapter.itemCount > 0){
             recyclerView.smoothScrollToPosition(0)
         }
     }
 
     fun onRandomValuesClick(view: View) {
-        mDemoAdapter?.refresh(randomValues())
+        mDemoAdapter.refresh(randomValues())
         if(view.id == R.id.checkboxContentBeforeHeader && view is CheckBox && view.isChecked){
             recyclerView.smoothScrollToPosition(0)
         }
@@ -53,6 +52,11 @@ class MainActivity : AppCompatActivity() {
         if(view is Switch){
             linearLayoutSettings.visibility = if(view.isChecked) View.VISIBLE else View.INVISIBLE
         }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration?) {
+        super.onConfigurationChanged(newConfig)
+        Log.i("ok", "test")
     }
 
     private fun randomValues(): ArrayList<Any> {

@@ -5,6 +5,7 @@ apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 27
+
     defaultConfig {
         applicationId "com.sokarcreative.basicstuffrecyclerview"
         minSdkVersion 16
@@ -29,10 +30,6 @@ dependencies {
 
     implementation "com.android.support:appcompat-v7:$android_support_version"
     implementation "com.android.support:recyclerview-v7:$android_support_version"
-
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.1'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
     implementation project(':library')
 }
