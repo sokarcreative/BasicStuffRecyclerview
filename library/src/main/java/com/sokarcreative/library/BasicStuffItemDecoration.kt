@@ -32,6 +32,7 @@ import android.view.ViewGroup
 class BasicStuffItemDecoration(adapter: RecyclerView.Adapter<*>) : RecyclerView.ItemDecoration(), RecyclerView.OnItemTouchListener {
 
     private var mStickyHeaderInfo: StickyHeaderInfo? = null
+    private var mCurrentWidthSpec = 0
 
     private var mOrientation: Int = 0
 
@@ -156,19 +157,20 @@ class BasicStuffItemDecoration(adapter: RecyclerView.Adapter<*>) : RecyclerView.
      * @param position Adapter position of the new sticky view.
      */
     private fun generateNewStickyHeader(parent: RecyclerView, position: Int) {
+        if(mCurrentWidthSpec != View.MeasureSpec.makeMeasureSpec(parent.width, View.MeasureSpec.EXACTLY) || mStickyHeaderInfo == null || position != mStickyHeaderInfo!!.position){
+            val stickyView = (parent.adapter as BasicStuffAdapter<*>).onCreateAndBindStickyView(parent, position)
 
-        val stickyView = (parent.adapter as BasicStuffAdapter<*>).onCreateAndBindStickyView(parent, position)
+            resizeStickyHeader(parent, stickyView)
 
-        resizeStickyHeader(parent, stickyView)
+            val divider = getNextDecoration(parent, position)
 
-        val divider = getNextDecoration(parent, position)
+            var dividerHeight = 0
+            if (divider != null) {
+                dividerHeight = divider.intrinsicHeight
+            }
 
-        var dividerHeight = 0
-        if (divider != null) {
-            dividerHeight = divider.intrinsicHeight
+            mStickyHeaderInfo = StickyHeaderInfo(position, stickyView, divider, dividerHeight)
         }
-
-        mStickyHeaderInfo = StickyHeaderInfo(position, stickyView, divider, dividerHeight)
     }
 
     /**
@@ -224,6 +226,7 @@ class BasicStuffItemDecoration(adapter: RecyclerView.Adapter<*>) : RecyclerView.
      */
     private fun resizeStickyHeader(parent: ViewGroup, view: View) {
         val widthSpec = View.MeasureSpec.makeMeasureSpec(parent.width, View.MeasureSpec.EXACTLY)
+        mCurrentWidthSpec = widthSpec
         val heightSpec = View.MeasureSpec.makeMeasureSpec(parent.height, View.MeasureSpec.UNSPECIFIED)
 
         val childWidthSpec = ViewGroup.getChildMeasureSpec(widthSpec, parent.paddingLeft + parent.paddingRight, view.layoutParams.width)
