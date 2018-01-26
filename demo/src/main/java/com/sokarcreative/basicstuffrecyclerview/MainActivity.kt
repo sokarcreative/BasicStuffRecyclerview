@@ -1,10 +1,8 @@
 package com.sokarcreative.basicstuffrecyclerview
 
-import android.content.res.Configuration
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.helper.ItemTouchHelper
-import android.util.Log
 import android.view.View
 import android.widget.CheckBox
 import android.widget.Switch
@@ -52,11 +50,6 @@ class MainActivity : AppCompatActivity() {
         if(view is Switch){
             linearLayoutSettings.visibility = if(view.isChecked) View.VISIBLE else View.INVISIBLE
         }
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration?) {
-        super.onConfigurationChanged(newConfig)
-        Log.i("ok", "test")
     }
 
     private fun randomValues(): ArrayList<Any> {
