@@ -1,10 +1,10 @@
 package com.sokarcreative.library
 
-import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.helper.ItemTouchHelper
-import android.support.v7.widget.helper.ItemTouchHelper.*
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.ItemTouchHelper.*
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 
 
@@ -14,18 +14,12 @@ import java.util.*
 
 class BasicStuffItemTouchHelperCallback : ItemTouchHelper.Callback() {
 
+    override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
 
-    override fun getMovementFlags(recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder?): Int {
-
-        if(recyclerView == null){
-            return ItemTouchHelper.Callback.makeMovementFlags(0, 0)
-        }
         if(recyclerView.adapter == null || !(recyclerView.adapter is BasicStuffAdapter<*>)){
             return ItemTouchHelper.Callback.makeMovementFlags(0, 0)
         }
-        if(viewHolder == null){
-            return ItemTouchHelper.Callback.makeMovementFlags(0, 0)
-        }
+
         val adapter : BasicStuffAdapter<*> = recyclerView.adapter as BasicStuffAdapter<*>
         val dragFlags = if (adapter.isDraggable(viewHolder.itemViewType)){
             if(recyclerView.layoutManager is LinearLayoutManager){
@@ -46,14 +40,9 @@ class BasicStuffItemTouchHelperCallback : ItemTouchHelper.Callback() {
         return ItemTouchHelper.Callback.makeMovementFlags(dragFlags, 0)
     }
 
-    override fun onMove(recyclerView: RecyclerView?, source: RecyclerView.ViewHolder?, target: RecyclerView.ViewHolder?): Boolean {
-        if(recyclerView == null){
-            return false
-        }
+    override fun onMove(recyclerView: RecyclerView, source: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+
         if(recyclerView.adapter == null || !(recyclerView.adapter is BasicStuffAdapter<*>)){
-            return false
-        }
-        if(source == null || target == null){
             return false
         }
 
@@ -132,7 +121,7 @@ class BasicStuffItemTouchHelperCallback : ItemTouchHelper.Callback() {
         return false;
     }
 
-    override fun onSwiped(viewHolder: RecyclerView.ViewHolder?, direction: Int) {
+    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
 
     }
 

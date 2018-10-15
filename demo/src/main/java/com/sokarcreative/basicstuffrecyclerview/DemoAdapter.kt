@@ -1,13 +1,14 @@
 package com.sokarcreative.basicstuffrecyclerview
 
+import android.content.Context
 import android.graphics.drawable.Drawable
-import android.support.v4.content.ContextCompat
-import android.support.v7.widget.RecyclerView
+import androidx.core.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import com.sokarcreative.basicstuffrecyclerview.models.Message
 import com.sokarcreative.basicstuffrecyclerview.models.TitleH
 import com.sokarcreative.library.BasicStuffAdapter
@@ -126,10 +127,10 @@ class DemoAdapter(private var items: ArrayList<Any>, private val activity: MainA
             calendar.timeInMillis = (items[position] as TitleH).timeInMillis
 
             when (viewType) {
-                VIEW_TYPE_TITLE_H3 -> textViewTitle.text = Util.simpleDateFormatDayCustom.format(calendar.time)
-                VIEW_TYPE_TITLE_H2 -> textViewTitle.text = Util.simpleDateFormatMonthCustom.format(calendar.time)
-                VIEW_TYPE_TITLE_H1 -> textViewTitle.text = activity.getString(R.string.happy_new_year_x, Util.simpleDateFormatYear.format(calendar.time))
-                else -> textViewTitle.text = Util.simpleDateFormatYear.format(calendar.time)
+                VIEW_TYPE_TITLE_H3 -> textViewTitle.text = activity.simpleDateFormatDayCustom.format(calendar.time)
+                VIEW_TYPE_TITLE_H2 -> textViewTitle.text = activity.simpleDateFormatMonthCustom.format(calendar.time)
+                VIEW_TYPE_TITLE_H1 -> textViewTitle.text = activity.getString(R.string.happy_new_year_x, activity.simpleDateFormatYear.format(calendar.time))
+                else -> textViewTitle.text = activity.simpleDateFormatYear.format(calendar.time)
             }
             return stickyView
         } else {
@@ -164,16 +165,16 @@ class DemoAdapter(private var items: ArrayList<Any>, private val activity: MainA
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = titleH.timeInMillis
             when (viewType) {
-                VIEW_TYPE_TITLE_H3 -> itemView.textViewTitle.text = Util.simpleDateFormatDay.format(calendar.time)
-                VIEW_TYPE_TITLE_H2 -> itemView.textViewTitle.text = Util.simpleDateFormatMonth.format(calendar.time)
-                else -> itemView.textViewTitle.text = Util.simpleDateFormatYear.format(calendar.time)
+                VIEW_TYPE_TITLE_H3 -> itemView.textViewTitle.text = activity.simpleDateFormatDay.format(calendar.time)
+                VIEW_TYPE_TITLE_H2 -> itemView.textViewTitle.text = activity.simpleDateFormatMonth.format(calendar.time)
+                else -> itemView.textViewTitle.text = activity.simpleDateFormatYear.format(calendar.time)
             }
         }
 
     }
 
-    val paddingTopBottomH1 : Int by lazy (LazyThreadSafetyMode.NONE) { Util.convertDpToPixel(activity, 36F) }
-    val paddingTopBottomH2 : Int by lazy (LazyThreadSafetyMode.NONE) { Util.convertDpToPixel(activity, 24F) }
+    val paddingTopBottomH1 : Int by lazy (LazyThreadSafetyMode.NONE) { activity.convertDpToPixel(36F) }
+    val paddingTopBottomH2 : Int by lazy (LazyThreadSafetyMode.NONE) { activity.convertDpToPixel(24F) }
 
     val backgroundColorTitleH1 : Int by lazy (LazyThreadSafetyMode.NONE) { ContextCompat.getColor(activity, R.color.backgroundColorH1) }
     val backgroundColorTitleH2 : Int by lazy (LazyThreadSafetyMode.NONE) { ContextCompat.getColor(activity, R.color.backgroundColorH2) }
@@ -193,6 +194,12 @@ class DemoAdapter(private var items: ArrayList<Any>, private val activity: MainA
             }
         }
         rootView.setPadding(paddingStartEnd, paddingTopBottom, paddingStartEnd, paddingTopBottom)
+    }
+
+    companion object {
+        private fun Context.convertDpToPixel(dp: Float): Int {
+            return (dp * (resources.displayMetrics.densityDpi / 160f)).toInt()
+        }
     }
 
 }

@@ -1,8 +1,9 @@
 package com.sokarcreative.library
 
 import android.graphics.drawable.Drawable
-import android.support.v7.widget.RecyclerView
 import android.view.View
+import androidx.recyclerview.widget.RecyclerView
+import java.lang.IllegalStateException
 
 /**
  * Copyright (C) 2017 sokarcreative
@@ -82,9 +83,11 @@ import android.view.View
      * @return the new stickyView created and binded.
      */
     open fun onCreateAndBindStickyView(parent: RecyclerView, position: Int): View {
-        val holder : RecyclerView.ViewHolder = parent.adapter.onCreateViewHolder(parent, parent.adapter.getItemViewType(position))
-        parent.adapter.onBindViewHolder(holder, position)
-        return holder.itemView
+        parent.adapter?.let { adapter ->
+            val holder : RecyclerView.ViewHolder = adapter.onCreateViewHolder(parent, adapter.getItemViewType(position))
+            adapter.onBindViewHolder(holder, position)
+            return holder.itemView
+        }?: throw IllegalStateException("no adapter")
     }
 
     /**
