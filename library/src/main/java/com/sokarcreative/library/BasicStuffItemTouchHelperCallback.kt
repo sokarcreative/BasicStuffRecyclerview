@@ -20,7 +20,7 @@ class BasicStuffItemTouchHelperCallback : ItemTouchHelper.Callback() {
             return ItemTouchHelper.Callback.makeMovementFlags(0, 0)
         }
 
-        val adapter : BasicStuffAdapter = recyclerView.adapter as BasicStuffAdapter
+        val adapter : BasicStuffAdapter<*> = recyclerView.adapter as BasicStuffAdapter
         val dragFlags = if (adapter.isDraggable(viewHolder.itemViewType)){
             if(recyclerView.layoutManager is LinearLayoutManager){
                 if (recyclerView.layoutManager is GridLayoutManager){
@@ -46,7 +46,7 @@ class BasicStuffItemTouchHelperCallback : ItemTouchHelper.Callback() {
             return false
         }
 
-        val adapter : BasicStuffAdapter = recyclerView.adapter as BasicStuffAdapter
+        val adapter : BasicStuffAdapter<*> = recyclerView.adapter as BasicStuffAdapter
 
         if(adapter.getItems() == null){
             return false
@@ -85,7 +85,7 @@ class BasicStuffItemTouchHelperCallback : ItemTouchHelper.Callback() {
         return false
     }
 
-    private fun canMoveToTarget(adapter: BasicStuffAdapter, viewHolderSource : RecyclerView.ViewHolder, viewHolderTarget : RecyclerView.ViewHolder) : Boolean{
+    private fun canMoveToTarget(adapter: BasicStuffAdapter<*>, viewHolderSource : RecyclerView.ViewHolder, viewHolderTarget : RecyclerView.ViewHolder) : Boolean{
         if(viewHolderTarget.adapterPosition == 0 && !adapter.isDraggable(adapter.getItemViewType(viewHolderTarget.adapterPosition))){
             return false
         }
@@ -110,7 +110,7 @@ class BasicStuffItemTouchHelperCallback : ItemTouchHelper.Callback() {
         return false
     }
 
-    private fun isSourceHeaderSameAsTargetHeader(adapter: BasicStuffAdapter, sourcePosition : Int, headerTargetPosition : Int, targetHeaderViewType : Int) : Boolean{
+    private fun isSourceHeaderSameAsTargetHeader(adapter: BasicStuffAdapter<*>, sourcePosition : Int, headerTargetPosition : Int, targetHeaderViewType : Int) : Boolean{
         var i = sourcePosition
         while(i >= 0 && i >= headerTargetPosition){
             if(adapter.getItemViewType(i) == targetHeaderViewType){
