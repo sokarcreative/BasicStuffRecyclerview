@@ -26,7 +26,7 @@ import androidx.recyclerview.widget.RecyclerView
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-class BasicStuffItemDecoration<E: RecyclerView.ViewHolder>(adapter: BasicStuffAdapter<E>) : RecyclerView.ItemDecoration(), RecyclerView.OnItemTouchListener {
+class BasicStuffItemDecoration(adapter: BasicStuffAdapter) : RecyclerView.ItemDecoration(), RecyclerView.OnItemTouchListener {
 
     private var mStickyHeaderInfo: StickyHeaderInfo? = null
     private var mCurrentWidthSpec = 0
@@ -56,7 +56,7 @@ class BasicStuffItemDecoration<E: RecyclerView.ViewHolder>(adapter: BasicStuffAd
     override fun onDrawOver(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State) {
         super.onDrawOver(canvas, parent, state)
         val adapter = parent.adapter
-        if (adapter == null || adapter !is BasicStuffAdapter<*>) {
+        if (adapter == null || adapter !is BasicStuffAdapter) {
             Log.e(TAG, "BasicStuffAdapter is missing")
             return
         }
@@ -157,7 +157,7 @@ class BasicStuffItemDecoration<E: RecyclerView.ViewHolder>(adapter: BasicStuffAd
      */
     private fun generateNewStickyHeader(parent: RecyclerView, position: Int) {
         if(mCurrentWidthSpec != View.MeasureSpec.makeMeasureSpec(parent.width, View.MeasureSpec.EXACTLY) || mStickyHeaderInfo == null || position != mStickyHeaderInfo!!.position){
-            val stickyView = (parent.adapter as BasicStuffAdapter<*>).onCreateAndBindStickyView(parent, position)
+            val stickyView = (parent.adapter as BasicStuffAdapter).onCreateAndBindStickyView(parent, position)
 
             resizeStickyHeader(parent, stickyView)
 
@@ -243,7 +243,7 @@ class BasicStuffItemDecoration<E: RecyclerView.ViewHolder>(adapter: BasicStuffAd
      * @param state The current state of RecyclerView.
      */
     override fun onDraw(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State) {
-        if (parent.adapter == null || parent.adapter !is BasicStuffAdapter<*>) {
+        if (parent.adapter == null || parent.adapter !is BasicStuffAdapter) {
             Log.e(TAG, "BasicStuffAdapter is missing")
             return
         }
@@ -268,7 +268,7 @@ class BasicStuffItemDecoration<E: RecyclerView.ViewHolder>(adapter: BasicStuffAd
      */
     override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
         super.getItemOffsets(outRect, view, parent, state)
-        if (parent.adapter == null || parent.adapter !is BasicStuffAdapter<*>) {
+        if (parent.adapter == null || parent.adapter !is BasicStuffAdapter) {
             Log.e(TAG, "BasicStuffAdapter is missing")
             return
         }
@@ -366,7 +366,7 @@ class BasicStuffItemDecoration<E: RecyclerView.ViewHolder>(adapter: BasicStuffAd
                     MotionEvent.ACTION_UP -> {
                         val pressDuration = System.currentTimeMillis() - pressStartTime
                         if (prepareToTouchEvent && pressDuration < MAX_CLICK_DURATION && stickyPosition == mStickyHeaderInfo!!.position) {
-                            (parent.adapter as BasicStuffAdapter<*>).onStickyViewClick(parent, mStickyHeaderInfo!!.position)
+                            (parent.adapter as BasicStuffAdapter).onStickyViewClick(parent, mStickyHeaderInfo!!.position)
                             return true
                         }
                     }
@@ -418,12 +418,12 @@ class BasicStuffItemDecoration<E: RecyclerView.ViewHolder>(adapter: BasicStuffAd
         return if (position + 1 < parent.adapter!!.itemCount) {
             val nextViewType: Int = parent.adapter!!.getItemViewType(position + 1)
             if (viewType != nextViewType) {
-                (parent.adapter as BasicStuffAdapter<*>).getLastDividerDecoration(viewType, nextViewType)
+                (parent.adapter as BasicStuffAdapter).getLastDividerDecoration(viewType, nextViewType)
             } else {
-                (parent.adapter as BasicStuffAdapter<*>).getDividerDecoration(viewType)
+                (parent.adapter as BasicStuffAdapter).getDividerDecoration(viewType)
             }
         } else {
-            (parent.adapter as BasicStuffAdapter<*>).getLastDecoration(viewType)
+            (parent.adapter as BasicStuffAdapter).getLastDecoration(viewType)
         }
     }
 
@@ -435,12 +435,12 @@ class BasicStuffItemDecoration<E: RecyclerView.ViewHolder>(adapter: BasicStuffAd
         return if (position > 0) {
             val previousViewType: Int = parent.adapter!!.getItemViewType(position - 1)
             if (viewType != previousViewType) {
-                (parent.adapter as BasicStuffAdapter<*>).getFirstDividerDecoration(viewType, previousViewType)
+                (parent.adapter as BasicStuffAdapter).getFirstDividerDecoration(viewType, previousViewType)
             } else {
                 null
             }
         } else {
-            (parent.adapter as BasicStuffAdapter<*>).getFirstDecoration(viewType)
+            (parent.adapter as BasicStuffAdapter).getFirstDecoration(viewType)
         }
     }
 

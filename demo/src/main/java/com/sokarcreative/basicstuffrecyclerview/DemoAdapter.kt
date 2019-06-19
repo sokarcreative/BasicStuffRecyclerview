@@ -20,7 +20,7 @@ import java.util.*
 /**
 * Created by sokarcreative on 29/10/2017.
 */
-class DemoAdapter(private var items: ArrayList<Any>, private val activity: MainActivity) : BasicStuffAdapter<RecyclerView.ViewHolder>() {
+class DemoAdapter(private var items: ArrayList<Any>, private val activity: MainActivity) : BasicStuffAdapter() {
 
     private val VIEW_TYPE_CONTENT = 0
     private val VIEW_TYPE_TITLE_H1 = 1

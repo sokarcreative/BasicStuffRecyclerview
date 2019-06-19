@@ -20,7 +20,7 @@ import java.lang.IllegalStateException
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- abstract class BasicStuffAdapter<VH : RecyclerView.ViewHolder> : RecyclerView.Adapter<VH>() {
+ abstract class BasicStuffAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     /************
      * Dividers *
