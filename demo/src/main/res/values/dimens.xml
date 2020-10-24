@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="common_padding_screen">16dp</dimen>
-    <dimen name="divider_title_height_h1">20dp</dimen>
-    <dimen name="divider_title_height_h2">10dp</dimen>
-    <dimen name="divider_title_height_h3">5dp</dimen>
-    <dimen name="divider_content_height">1px</dimen>
+    <dimen name="common_vertical_space">12dp</dimen>
+    <dimen name="common_horizontal_space">16dp</dimen>
+    <dimen name="space_between_movies">8dp</dimen>
 </resources>

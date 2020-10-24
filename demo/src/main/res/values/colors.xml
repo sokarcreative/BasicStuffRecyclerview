@@ -2,9 +2,8 @@
 <resources>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
-    <color name="backgroundColorH1">#F44336</color>
-    <color name="backgroundColorH2">#3F51B5</color>
-    <color name="backgroundColorH3">#4CAF50</color>
-    <color name="colorGreyDivider">#9E9E9E</color>
+    <color name="colorAccent">#85C6EE</color>
+    <color name="colorHeaderFavorites">@android:color/holo_red_light</color>
+    <color name="colorHeaderMovies">@android:color/holo_green_light</color>
+    <color name="colorGreyBackgroundLight">#FBFBFB</color>
 </resources>

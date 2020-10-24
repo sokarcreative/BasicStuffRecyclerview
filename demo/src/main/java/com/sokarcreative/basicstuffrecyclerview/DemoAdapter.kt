@@ -2,207 +2,174 @@ package com.sokarcreative.basicstuffrecyclerview
 
 import android.content.Context
 import android.graphics.drawable.Drawable
-import androidx.core.content.ContextCompat
+import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
+import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.BlendModeColorFilterCompat
+import androidx.core.graphics.BlendModeCompat
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.sokarcreative.basicstuffrecyclerview.models.Message
-import com.sokarcreative.basicstuffrecyclerview.models.TitleH
-import com.sokarcreative.library.BasicStuffAdapter
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.view_holder_content.view.*
-import kotlinx.android.synthetic.main.view_holder_title.view.*
-import java.util.*
+import com.sokarcreative.basicstuffrecyclerview.models.*
+import com.sokarcreative.library.basicstuffrecyclerview.divider.LinearDividersListener
+import com.sokarcreative.library.stickyheader.LinearStickyHeadersListener
 
-/**
-* Created by sokarcreative on 29/10/2017.
-*/
-class DemoAdapter(private var items: ArrayList<Any>, private val activity: MainActivity) : BasicStuffAdapter<RecyclerView.ViewHolder>() {
+class DemoAdapter(context: Context, val addOrRemove: (movie: Movie) -> Unit, val addOrRemoveAllMovies: (headerCategory: MainViewModel.HeaderCategory) -> Unit, val scrollToPosition: (position: Int) -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), LinearDividersListener, LinearStickyHeadersListener {
 
-    private val VIEW_TYPE_CONTENT = 0
-    private val VIEW_TYPE_TITLE_H1 = 1
-    private val VIEW_TYPE_TITLE_H2 = 2
-    private val VIEW_TYPE_TITLE_H3 = 3
+    var items: List<Any> = emptyList()
 
-    val firstDecoration : Drawable? by lazy (LazyThreadSafetyMode.NONE) { ContextCompat.getDrawable(activity, R.drawable.first_decoration) }
-    val lastDecoration : Drawable? by lazy (LazyThreadSafetyMode.NONE) { ContextCompat.getDrawable(activity, R.drawable.last_decoration) }
+    override fun getItemCount(): Int = items.count()
 
-    val dividerContent : Drawable? by lazy (LazyThreadSafetyMode.NONE) { ContextCompat.getDrawable(activity, R.drawable.divider_content) }
-    val dividerContentSpace : Drawable? by lazy (LazyThreadSafetyMode.NONE) { ContextCompat.getDrawable(activity, R.drawable.divider_space) }
-
-    val dividerH1 : Drawable? by lazy (LazyThreadSafetyMode.NONE) { ContextCompat.getDrawable(activity, R.drawable.divider_h1) }
-    val dividerH2 : Drawable? by lazy (LazyThreadSafetyMode.NONE) { ContextCompat.getDrawable(activity, R.drawable.divider_h2) }
-    val dividerH3 : Drawable? by lazy (LazyThreadSafetyMode.NONE) { ContextCompat.getDrawable(activity, R.drawable.divider_h3) }
-
-    fun refresh(items: ArrayList<Any>) {
-        this.items = items
-        notifyDataSetChanged()
+    override fun getItemViewType(position: Int): Int = when (items[position]) {
+        is Header -> VIEW_TYPE_HEADER
+        is MainViewModel.HeaderCategory -> VIEW_TYPE_CATEGORY
+        is Movie -> VIEW_TYPE_MOVIE
+        else -> throw IllegalStateException()
     }
 
-    override fun getItemViewType(position: Int): Int {
-        val item = items[position]
-        return if (item is Message) {
-            VIEW_TYPE_CONTENT
-        } else {
-            when ((item as TitleH).titleType) {
-                TitleH.H3 -> VIEW_TYPE_TITLE_H3
-                TitleH.H2 -> VIEW_TYPE_TITLE_H2
-                TitleH.H1 -> VIEW_TYPE_TITLE_H1
-                else -> VIEW_TYPE_TITLE_H3
-            }
-        }
+    override fun isStickyHeader(viewType: Int): Boolean = when (viewType) {
+        VIEW_TYPE_HEADER -> true
+        VIEW_TYPE_CATEGORY -> true
+        else -> false
+    }
+
+    val drawableDividerFirstLast: Drawable = ContextCompat.getDrawable(context, R.drawable.divider_first_last)!!
+    val drawableMovieDivider: Drawable = ContextCompat.getDrawable(context, R.drawable.divider_between_movies)!!
+
+    val drawableDividerBetweenMovieAndCategory: Drawable = ContextCompat.getDrawable(context, R.drawable.divider_between_movie_and_category)!!
+    val drawableDividerBetweenMovieAndheader: Drawable = ContextCompat.getDrawable(context, R.drawable.divider_between_movie_and_header)!!
+
+    override fun getFirstDecoration(viewType: Int): Drawable? {
+        return drawableDividerFirstLast
+    }
+
+    override fun getFirstDividerDecoration(viewType: Int, previousViewType: Int): Drawable? = when {
+        previousViewType == VIEW_TYPE_MOVIE && viewType == VIEW_TYPE_CATEGORY -> drawableDividerBetweenMovieAndCategory
+        previousViewType == VIEW_TYPE_MOVIE && viewType == VIEW_TYPE_HEADER -> drawableDividerBetweenMovieAndheader
+        else -> null
+    }
+
+    override fun getDividerDecoration(viewType: Int): Drawable? = when (viewType) {
+        VIEW_TYPE_MOVIE -> drawableMovieDivider
+        else -> null
+    }
+
+    override fun getLastDividerDecoration(viewType: Int, nextViewType: Int): Drawable? = when {
+        else -> null
+    }
+
+    override fun getLastDecoration(viewType: Int): Drawable? {
+        return drawableDividerFirstLast
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return if (viewType == VIEW_TYPE_CONTENT) {
-            ContentViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.view_holder_content, parent, false))
-        } else {
-            TitleViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.view_holder_title, parent, false), viewType)
+        return when (viewType) {
+            VIEW_TYPE_HEADER -> HeaderViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.viewholder_demo_header, parent, false))
+            VIEW_TYPE_CATEGORY -> CategoryViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.viewholder_demo_category, parent, false))
+            VIEW_TYPE_MOVIE -> MovieViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.viewholder_demo_movie, parent, false))
+            else -> throw IllegalStateException()
         }
+    }
+
+    override fun onCreateAndBindStickyView(parent: RecyclerView, position: Int): View = when (getItemViewType(position)) {
+        VIEW_TYPE_CATEGORY -> super.onCreateAndBindStickyView(parent, position).apply {
+            findViewById<ImageView>(R.id.imageViewFavorites).visibility = View.INVISIBLE
+        }
+        else -> super.onCreateAndBindStickyView(parent, position)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val viewType = getItemViewType(position)
-        if (viewType == VIEW_TYPE_CONTENT) {
-            (holder as ContentViewHolder).bind(items[position] as Message)
-        } else {
-            (holder as TitleViewHolder).bind(items[position] as TitleH, viewType)
+        when (holder) {
+            is HeaderViewHolder -> holder.bind(items[position] as Header)
+            is CategoryViewHolder -> holder.bind(items[position] as MainViewModel.HeaderCategory, position)
+            is MovieViewHolder -> holder.bind(items[position] as Movie)
+            else -> throw IllegalStateException()
         }
     }
 
-    override fun getItemCount(): Int = items.size
+    fun refresh(items: List<Any>) {
+        val oldItems = this.items
+        val newItems = items
 
-    override fun isStickyHeader(viewType: Int): Boolean = activity.checkBoxShowStickyHeader.isChecked && isHeader(viewType)
+        val diff = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+            override fun getOldListSize(): Int = oldItems.size
 
-    override fun getFirstDecoration(viewType: Int): Drawable? = if (activity.checkBoxShowFirstLastDecoration.isChecked) firstDecoration else null
+            override fun getNewListSize(): Int = newItems.size
 
-    override fun getLastDecoration(viewType: Int): Drawable? = if (activity.checkBoxShowFirstLastDecoration.isChecked) lastDecoration else null
-
-    override fun getDividerDecoration(viewType: Int): Drawable? {
-        if (activity.checkBoxShowDivider.isChecked) {
-            return when (viewType) {
-                VIEW_TYPE_CONTENT -> dividerContent
-                VIEW_TYPE_TITLE_H3 -> dividerH3
-                VIEW_TYPE_TITLE_H2 -> dividerH2
-                else -> dividerH1
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return oldItems[oldItemPosition] == newItems[newItemPosition]
             }
-        }
-        return null
+
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return oldItems[oldItemPosition] == newItems[newItemPosition]
+            }
+        })
+
+        this.items = newItems
+        diff.dispatchUpdatesTo(this)
     }
 
-    override fun getFirstDividerDecoration(viewType: Int, previousViewType: Int): Drawable? {
-        if (activity.checkBoxShowDivider.isChecked) {
-            if (viewType == VIEW_TYPE_CONTENT) {
-                return dividerContentSpace
-            }
+    class HeaderViewHolder(v: View) : RecyclerView.ViewHolder(v) {
+        val textView = itemView.findViewById<TextView>(R.id.textViewTitle)
+        fun bind(header: Header) {
+            itemView.setOnClickListener { Toast.makeText(itemView.context, "${++iter}", Toast.LENGTH_SHORT).show() }
+            textView.setCompoundDrawablesWithIntrinsicBounds(header.getDrawableRes(), 0, 0, 0)
+            textView.compoundDrawables[0].mutate().colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(ContextCompat.getColor(itemView.context, header.getColorRes()), BlendModeCompat.SRC_ATOP)
+            textView.text = itemView.context.getString(header.getNameStringRes())
         }
-        return null
-    }
 
-    override fun getLastDividerDecoration(viewType: Int, nextViewType: Int): Drawable? {
-        if (activity.checkBoxShowDivider.isChecked) {
-            when (viewType) {
-                VIEW_TYPE_CONTENT -> return dividerContentSpace
-                VIEW_TYPE_TITLE_H3 -> return dividerH3
-                VIEW_TYPE_TITLE_H2 -> return dividerH2
-                else-> return dividerH1
-            }
-        }
-        return null
-    }
-
-
-    override fun onCreateAndBindStickyView(parent: RecyclerView, position: Int): View {
-        if (activity.checkboxShowCustomStickyHeader.isChecked) {
-            val stickyView = LayoutInflater.from(parent.context).inflate(R.layout.view_holder_title, parent, false)
-            val textViewTitle : TextView = stickyView.findViewById(R.id.textViewTitle)
-
-            val viewType = getItemViewType(position)
-            initTitleViewHolder(stickyView, viewType)
-
-            val calendar = Calendar.getInstance()
-            calendar.timeInMillis = (items[position] as TitleH).timeInMillis
-
-            when (viewType) {
-                VIEW_TYPE_TITLE_H3 -> textViewTitle.text = activity.simpleDateFormatDayCustom.format(calendar.time)
-                VIEW_TYPE_TITLE_H2 -> textViewTitle.text = activity.simpleDateFormatMonthCustom.format(calendar.time)
-                VIEW_TYPE_TITLE_H1 -> textViewTitle.text = activity.getString(R.string.happy_new_year_x, activity.simpleDateFormatYear.format(calendar.time))
-                else -> textViewTitle.text = activity.simpleDateFormatYear.format(calendar.time)
-            }
-            return stickyView
-        } else {
-            return super.onCreateAndBindStickyView(parent, position)
+        companion object {
+            var iter: Int = 0
         }
     }
 
-    override fun getItems(): ArrayList<Any>? = items
+    inner class CategoryViewHolder(v: View) : RecyclerView.ViewHolder(v) {
+        val textViewCategory = itemView.findViewById<TextView>(R.id.textViewCategory)
+        val imageViewFavorites = itemView.findViewById<ImageView>(R.id.imageViewFavorites)
+        val constraintLayout = itemView.findViewById<ConstraintLayout>(R.id.constraintLayout)
+        fun bind(headerCategory: MainViewModel.HeaderCategory, position: Int) {
+            with(itemView) {
+                setOnClickListener {
+                    scrollToPosition.invoke(position)
+                }
+                with(constraintLayout) {
+                    (background.mutate() as GradientDrawable).setStroke(1, ContextCompat.getColor(itemView.context, headerCategory.header.getColorRes()))
 
-    override fun isDraggable(viewType: Int): Boolean = activity.checkboxDraggableUnderDay.isChecked && viewType == VIEW_TYPE_CONTENT
+                    with(textViewCategory) {
+                        text = itemView.context.getString(headerCategory.category.titleStringRes())
+                    }
 
-    override fun allowMove(viewTypeDraggable: Int, headerViewType: Int): Boolean = viewTypeDraggable == VIEW_TYPE_CONTENT && headerViewType == VIEW_TYPE_TITLE_H3
+                    with(imageViewFavorites) {
+                        setOnClickListener {
+                            addOrRemoveAllMovies.invoke(headerCategory)
+                        }
+                    }
+                }
+            }
 
-    override fun isHeader(viewType: Int): Boolean = viewType != VIEW_TYPE_CONTENT
-
-    internal inner class ContentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
-
-        fun bind(message : Message){
-            itemView.textViewAuthor.text = activity.getString(R.string.author_x, message.author)
-            itemView.textViewMessage.text = activity.getString(R.string.message_x, message.message)
         }
-
     }
 
-    internal inner class TitleViewHolder(itemView: View, viewType: Int) : RecyclerView.ViewHolder(itemView) {
-
-        init {
-            initTitleViewHolder(itemView, viewType)
-        }
-
-        fun bind(titleH: TitleH, viewType: Int){
-            val calendar = Calendar.getInstance()
-            calendar.timeInMillis = titleH.timeInMillis
-            when (viewType) {
-                VIEW_TYPE_TITLE_H3 -> itemView.textViewTitle.text = activity.simpleDateFormatDay.format(calendar.time)
-                VIEW_TYPE_TITLE_H2 -> itemView.textViewTitle.text = activity.simpleDateFormatMonth.format(calendar.time)
-                else -> itemView.textViewTitle.text = activity.simpleDateFormatYear.format(calendar.time)
+    inner class MovieViewHolder(v: View) : RecyclerView.ViewHolder(v) {
+        val textView = itemView as TextView
+        fun bind(movie: Movie) {
+            textView.text = movie.name
+            textView.setOnClickListener {
+                addOrRemove.invoke(movie)
             }
         }
-
-    }
-
-    val paddingTopBottomH1 : Int by lazy (LazyThreadSafetyMode.NONE) { activity.convertDpToPixel(36F) }
-    val paddingTopBottomH2 : Int by lazy (LazyThreadSafetyMode.NONE) { activity.convertDpToPixel(24F) }
-
-    val backgroundColorTitleH1 : Int by lazy (LazyThreadSafetyMode.NONE) { ContextCompat.getColor(activity, R.color.backgroundColorH1) }
-    val backgroundColorTitleH2 : Int by lazy (LazyThreadSafetyMode.NONE) { ContextCompat.getColor(activity, R.color.backgroundColorH2) }
-
-    private fun initTitleViewHolder(itemView: View, viewType: Int) {
-        val rootView = itemView as LinearLayout
-        val paddingStartEnd = rootView.paddingLeft
-        var paddingTopBottom = rootView.paddingTop
-        when (viewType) {
-            VIEW_TYPE_TITLE_H2 -> {
-                paddingTopBottom = paddingTopBottomH2
-                itemView.setBackgroundColor(backgroundColorTitleH2)
-            }
-            VIEW_TYPE_TITLE_H1 -> {
-                paddingTopBottom = paddingTopBottomH1
-                itemView.setBackgroundColor(backgroundColorTitleH1)
-            }
-        }
-        rootView.setPadding(paddingStartEnd, paddingTopBottom, paddingStartEnd, paddingTopBottom)
     }
 
     companion object {
-        private fun Context.convertDpToPixel(dp: Float): Int {
-            return (dp * (resources.displayMetrics.densityDpi / 160f)).toInt()
-        }
+        const val VIEW_TYPE_HEADER = 1
+        const val VIEW_TYPE_CATEGORY = 2
+        const val VIEW_TYPE_MOVIE = 3
     }
 
 }
-
-
 
