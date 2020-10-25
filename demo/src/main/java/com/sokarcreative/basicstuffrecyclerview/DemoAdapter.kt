@@ -19,7 +19,7 @@ import com.sokarcreative.basicstuffrecyclerview.models.*
 import com.sokarcreative.library.basicstuffrecyclerview.divider.LinearDividersListener
 import com.sokarcreative.library.stickyheader.LinearStickyHeadersListener
 
-class DemoAdapter(context: Context, val addOrRemove: (movie: Movie) -> Unit, val addOrRemoveAllMovies: (headerCategory: MainViewModel.HeaderCategory) -> Unit, val scrollToPosition: (position: Int) -> Unit, var stickyHeadersEnabled: Triple<Boolean, Boolean, Boolean>) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), LinearDividersListener, LinearStickyHeadersListener {
+class DemoAdapter(context: Context, val addOrRemove: (movie: Movie) -> Unit, val addOrRemoveAllMovies: (headerCategory: MainViewModel.HeaderCategory) -> Unit, val scrollToPosition: (position: Int) -> Unit, var stickyHeadersEnabled: Triple<Boolean, Boolean, Boolean>, var dividersEnabled: MainViewModel.DividersEnabled) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), LinearDividersListener, LinearStickyHeadersListener {
 
     var items: List<Any> = emptyList()
 
@@ -45,28 +45,26 @@ class DemoAdapter(context: Context, val addOrRemove: (movie: Movie) -> Unit, val
     val drawableDividerBetweenMovieAndCategory: Drawable = ContextCompat.getDrawable(context, R.drawable.divider_between_movie_and_category)!!
     val drawableDividerBetweenMovieAndheader: Drawable = ContextCompat.getDrawable(context, R.drawable.divider_between_movie_and_header)!!
 
-    override fun getFirstDecoration(viewType: Int): Drawable? {
-        return drawableDividerFirstLast
+    override fun getFirstDecoration(viewType: Int): Drawable? = if(!dividersEnabled.isFirstLastDecorationEnabled) null else drawableDividerFirstLast
+
+    override fun getFirstDividerDecoration(viewType: Int, previousViewType: Int): Drawable? = if(!dividersEnabled.isFirstDividerDecorationEnabled) null else {
+        when {
+            previousViewType == VIEW_TYPE_MOVIE && viewType == VIEW_TYPE_CATEGORY -> drawableDividerBetweenMovieAndCategory
+            previousViewType == VIEW_TYPE_MOVIE && viewType == VIEW_TYPE_HEADER -> drawableDividerBetweenMovieAndheader
+            else -> null
+        }
     }
 
-    override fun getFirstDividerDecoration(viewType: Int, previousViewType: Int): Drawable? = when {
-        previousViewType == VIEW_TYPE_MOVIE && viewType == VIEW_TYPE_CATEGORY -> drawableDividerBetweenMovieAndCategory
-        previousViewType == VIEW_TYPE_MOVIE && viewType == VIEW_TYPE_HEADER -> drawableDividerBetweenMovieAndheader
-        else -> null
+    override fun getDividerDecoration(viewType: Int): Drawable? = if(!dividersEnabled.isDividerDecorationEnabled) null else {
+        when (viewType) {
+            VIEW_TYPE_MOVIE -> drawableMovieDivider
+            else -> null
+        }
     }
 
-    override fun getDividerDecoration(viewType: Int): Drawable? = when (viewType) {
-        VIEW_TYPE_MOVIE -> drawableMovieDivider
-        else -> null
-    }
+    override fun getLastDividerDecoration(viewType: Int, nextViewType: Int): Drawable? = if(!dividersEnabled.isLastDividerDecorationEnabled) null else drawableDividerFirstLast
 
-    override fun getLastDividerDecoration(viewType: Int, nextViewType: Int): Drawable? = when {
-        else -> null
-    }
-
-    override fun getLastDecoration(viewType: Int): Drawable? {
-        return drawableDividerFirstLast
-    }
+    override fun getLastDecoration(viewType: Int): Drawable? = if(!dividersEnabled.isFirstLastDecorationEnabled) null else drawableDividerFirstLast
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {

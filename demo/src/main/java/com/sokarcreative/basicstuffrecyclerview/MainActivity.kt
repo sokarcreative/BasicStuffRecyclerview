@@ -22,7 +22,7 @@ import com.sokarcreative.library.stickyheader.StickyHeaderLinearItemDecoration
 import kotlinx.android.synthetic.main.activity_main.*
 
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class MainActivity : AppCompatActivity() {
 
     lateinit var mainViewModel: MainViewModel
 
@@ -31,27 +31,60 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        navigationView.setNavigationItemSelectedListener(this)
-
         with(navigationView.menu) {
+            val isDividerFeatureEnabled = mainViewModel.isDividerFeatureEnabledLiveData().value!!
+            with(findItem(R.id.blankMenu)){
+                isVisible = isDividerFeatureEnabled
+            }
             with(findItem(R.id.dividersState).actionView.findViewById<Switch>(R.id.switchEnable)) {
-                isChecked = mainViewModel.isDividerEnabledLiveData().value!!
+                isChecked = isDividerFeatureEnabled
                 setOnCheckedChangeListener { _, isChecked ->
-                    mainViewModel.setIsDividerEnabled(isChecked)
+                    findItem(R.id.menuDividers).isVisible = isChecked
+                    navigationView.menu.findItem(R.id.blankMenu).isVisible = isChecked
+                    mainViewModel.setIsDividerFeatureEnabled(isChecked)
                 }
             }
-            val isStickyHeaderEnabled = mainViewModel.isStickyHeaderEnabledLiveData().value!!
-            with(findItem(R.id.stickyHeaderState).actionView.findViewById<Switch>(R.id.switchEnable)){
-                isChecked = isStickyHeaderEnabled
+            with(findItem(R.id.menuDividers)) {
+                isVisible = isDividerFeatureEnabled
+                val onCheckedChangeListener = CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
+                    with(navigationView.menu.findItem(R.id.menuDividers).subMenu) {
+                        val isFirstLastDecorationEnabled = findItem(R.id.firstLast).actionView.findViewById<Switch>(R.id.switchEnable).isChecked
+                        val isFirstDividerDecorationEnabled = findItem(R.id.beforeFirst).actionView.findViewById<Switch>(R.id.switchEnable).isChecked
+                        val isDividerDecorationEnabled = findItem(R.id.between).actionView.findViewById<Switch>(R.id.switchEnable).isChecked
+                        val isLastDividerDecorationEnabled = findItem(R.id.afterLast).actionView.findViewById<Switch>(R.id.switchEnable).isChecked
+                        mainViewModel.setDividersEnabled(MainViewModel.DividersEnabled(isFirstLastDecorationEnabled = isFirstLastDecorationEnabled, isFirstDividerDecorationEnabled = isFirstDividerDecorationEnabled, isDividerDecorationEnabled = isDividerDecorationEnabled, isLastDividerDecorationEnabled = isLastDividerDecorationEnabled))
+                    }
+                }
+                val dividersEnabled = mainViewModel.getDividersEnabledLiveData().value!!
+                with(subMenu.findItem(R.id.firstLast).actionView.findViewById<Switch>(R.id.switchEnable)) {
+                    isChecked = dividersEnabled.isFirstLastDecorationEnabled
+                    setOnCheckedChangeListener(onCheckedChangeListener)
+                }
+                with(subMenu.findItem(R.id.beforeFirst).actionView.findViewById<Switch>(R.id.switchEnable)) {
+                    isChecked = dividersEnabled.isFirstDividerDecorationEnabled
+                    setOnCheckedChangeListener(onCheckedChangeListener)
+                }
+                with(subMenu.findItem(R.id.between).actionView.findViewById<Switch>(R.id.switchEnable)) {
+                    isChecked = dividersEnabled.isDividerDecorationEnabled
+                    setOnCheckedChangeListener(onCheckedChangeListener)
+                }
+                with(subMenu.findItem(R.id.afterLast).actionView.findViewById<Switch>(R.id.switchEnable)) {
+                    isChecked = dividersEnabled.isLastDividerDecorationEnabled
+                    setOnCheckedChangeListener(onCheckedChangeListener)
+                }
+            }
+            val isStickyHeaderFeatureEnabled = mainViewModel.isStickyHeaderFeatureEnabledLiveData().value!!
+            with(findItem(R.id.stickyHeaderState).actionView.findViewById<Switch>(R.id.switchEnable)) {
+                isChecked = isStickyHeaderFeatureEnabled
                 setOnCheckedChangeListener { _, isChecked ->
-                    mainViewModel.setIsStickyHeaderEnabledLiveData(isChecked)
+                    mainViewModel.setIsStickyHeaderFeatureEnabledLiveData(isChecked)
                     findItem(R.id.menuStickyHeader).isVisible = isChecked
                 }
             }
-            with(findItem(R.id.menuStickyHeader)){
-                isVisible = isStickyHeaderEnabled
+            with(findItem(R.id.menuStickyHeader)) {
+                isVisible = isStickyHeaderFeatureEnabled
                 val onCheckedChangeListener = CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
-                    with(navigationView.menu.findItem(R.id.menuStickyHeader).subMenu){
+                    with(navigationView.menu.findItem(R.id.menuStickyHeader).subMenu) {
                         val isHeaderEnabled = findItem(R.id.headerStickyHeader).actionView.findViewById<Switch>(R.id.switchEnable).isChecked
                         val isCategoryEnabled = findItem(R.id.categoryStickyHeader).actionView.findViewById<Switch>(R.id.switchEnable).isChecked
                         val isMovieEnabled = findItem(R.id.movieStickyHeader).actionView.findViewById<Switch>(R.id.switchEnable).isChecked
@@ -59,15 +92,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     }
                 }
                 val stickyHeadersEnabled = mainViewModel.getStickyHeadersEnabledLiveData().value!!
-                with(subMenu.findItem(R.id.headerStickyHeader).actionView.findViewById<Switch>(R.id.switchEnable)){
+                with(subMenu.findItem(R.id.headerStickyHeader).actionView.findViewById<Switch>(R.id.switchEnable)) {
                     isChecked = stickyHeadersEnabled.first
                     setOnCheckedChangeListener(onCheckedChangeListener)
                 }
-                with(subMenu.findItem(R.id.categoryStickyHeader).actionView.findViewById<Switch>(R.id.switchEnable)){
+                with(subMenu.findItem(R.id.categoryStickyHeader).actionView.findViewById<Switch>(R.id.switchEnable)) {
                     isChecked = stickyHeadersEnabled.second
                     setOnCheckedChangeListener(onCheckedChangeListener)
                 }
-                with(subMenu.findItem(R.id.movieStickyHeader).actionView.findViewById<Switch>(R.id.switchEnable)){
+                with(subMenu.findItem(R.id.movieStickyHeader).actionView.findViewById<Switch>(R.id.switchEnable)) {
                     isChecked = stickyHeadersEnabled.third
                     setOnCheckedChangeListener(onCheckedChangeListener)
                 }
@@ -92,7 +125,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 scrollToPosition = { position ->
                     recyclerView.scrollToPosition(position)
                 },
-                stickyHeadersEnabled = mainViewModel.getStickyHeadersEnabledLiveData().value!!
+                stickyHeadersEnabled = mainViewModel.getStickyHeadersEnabledLiveData().value!!,
+                dividersEnabled = mainViewModel.getDividersEnabledLiveData().value!!
         )
 
         recyclerView.itemAnimator.takeIf { it is SimpleItemAnimator }?.let {
@@ -104,23 +138,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             recyclerView.invalidateItemDecorations()
         })
 
-        mainViewModel.isDividerEnabledLiveData().observe(this, Observer { isDividerEnabled ->
+        mainViewModel.isDividerFeatureEnabledLiveData().observe(this, Observer { isDividerFeatureEnabled ->
             recyclerView.itemDecorations().filterIsInstance<LinearItemDecoration>().forEach {
                 recyclerView.removeItemDecoration(it)
             }
-            if (isDividerEnabled) {
-
+            if (isDividerFeatureEnabled) {
                 recyclerView.addItemDecoration(LinearItemDecoration(recyclerView.adapter as LinearDividersListener))
             }
             recyclerView.invalidateItemDecorations()
         })
 
-        mainViewModel.isStickyHeaderEnabledLiveData().observe(this, Observer { isStickyHeaderEnabled ->
+        mainViewModel.isStickyHeaderFeatureEnabledLiveData().observe(this, Observer { isStickyHeaderFeatureEnabled ->
             recyclerView.itemDecorations().filterIsInstance<StickyHeaderLinearItemDecoration>().forEach {
                 recyclerView.removeOnItemTouchListener(it)
                 recyclerView.removeItemDecoration(it)
             }
-            if (isStickyHeaderEnabled) {
+            if (isStickyHeaderFeatureEnabled) {
                 recyclerView.addItemDecoration(StickyHeaderLinearItemDecoration(recyclerView.adapter as LinearStickyHeadersListener).also {
                     recyclerView.addOnItemTouchListener(it)
                 })
@@ -132,6 +165,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             (recyclerView.adapter as DemoAdapter).stickyHeadersEnabled = it
             recyclerView.invalidateItemDecorations()
         })
+        mainViewModel.getDividersEnabledLiveData().observe(this, Observer {
+            (recyclerView.adapter as DemoAdapter).dividersEnabled = it
+            recyclerView.invalidateItemDecorations()
+        })
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -141,18 +178,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.dividersState -> {
-
-            }
-            R.id.stickyHeaderState -> {
-
-            }
-        }
-        return true
     }
 
 

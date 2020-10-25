@@ -11,12 +11,13 @@ import com.zhuinden.livedatacombinetuplekt.combineTuple
 
 class MainViewModel : ViewModel() {
 
-    private val isDividerEnabledLiveData: MutableLiveData<Boolean> = MutableLiveData(true)
-    private val isStickyHeaderEnabledLiveData: MutableLiveData<Boolean> = MutableLiveData(true)
+    private val isDividerFeatureEnabledLiveData: MutableLiveData<Boolean> = MutableLiveData(true)
+    private val isStickyHeaderFeatureEnabledLiveData: MutableLiveData<Boolean> = MutableLiveData(true)
     private val favoritesLiveData: MutableLiveData<Set<Movie>> = MutableLiveData(emptySet())
     private val moviesLiveData: MutableLiveData<Set<Movie>> = MutableLiveData(moviesByDefault)
 
     private val stickyHeadersEnabledLiveData: MutableLiveData<Triple<Boolean, Boolean, Boolean>> = MutableLiveData(Triple(true, true, false))
+    private val dividersEnabledLiveData: MutableLiveData<DividersEnabled> = MutableLiveData(DividersEnabled(isFirstLastDecorationEnabled = true, isFirstDividerDecorationEnabled = true, isDividerDecorationEnabled = true, isLastDividerDecorationEnabled = true, ))
 
     private val itemsLiveData: LiveData<List<Any>> = combineTuple(moviesLiveData, favoritesLiveData).map { (movies, favorites) ->
         if (movies == null || favorites == null) emptyList()
@@ -42,19 +43,24 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun isDividerEnabledLiveData(): LiveData<Boolean> = isDividerEnabledLiveData
-    fun setIsDividerEnabled(isEnable: Boolean) {
-        isDividerEnabledLiveData.value = isEnable
+    fun isDividerFeatureEnabledLiveData(): LiveData<Boolean> = isDividerFeatureEnabledLiveData
+    fun setIsDividerFeatureEnabled(isEnabled: Boolean) {
+        isDividerFeatureEnabledLiveData.value = isEnabled
     }
 
-    fun isStickyHeaderEnabledLiveData(): LiveData<Boolean> = isStickyHeaderEnabledLiveData
-    fun setIsStickyHeaderEnabledLiveData(isEnable: Boolean){
-        isStickyHeaderEnabledLiveData.value = isEnable
+    fun isStickyHeaderFeatureEnabledLiveData(): LiveData<Boolean> = isStickyHeaderFeatureEnabledLiveData
+    fun setIsStickyHeaderFeatureEnabledLiveData(isEnabled: Boolean){
+        isStickyHeaderFeatureEnabledLiveData.value = isEnabled
     }
 
     fun getStickyHeadersEnabledLiveData(): LiveData<Triple<Boolean, Boolean, Boolean>> = stickyHeadersEnabledLiveData
     fun setStickyHeadersEnabled(headersEnabled: Triple<Boolean, Boolean, Boolean>){
         stickyHeadersEnabledLiveData.value = headersEnabled
+    }
+
+    fun getDividersEnabledLiveData(): LiveData<DividersEnabled> = dividersEnabledLiveData
+    fun setDividersEnabled(headersEnabled: DividersEnabled){
+        dividersEnabledLiveData.value = headersEnabled
     }
 
     fun getItemsLiveData(): LiveData<List<Any>> = itemsLiveData
@@ -109,6 +115,8 @@ class MainViewModel : ViewModel() {
                 Movie("Fight Club 10", Category.THRILLER),
         )
     }
+
+    data class DividersEnabled(val isFirstLastDecorationEnabled: Boolean, val isFirstDividerDecorationEnabled: Boolean, val isDividerDecorationEnabled: Boolean, val isLastDividerDecorationEnabled: Boolean)
 
     data class HeaderCategory(val header: Header, val category: Category)
     sealed class MovieState {

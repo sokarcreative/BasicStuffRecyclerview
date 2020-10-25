@@ -7,9 +7,33 @@
         android:title="Enable dividers"
         app:actionLayout="@layout/switch_item" />
     <item
+        android:id="@+id/menuDividers"
+        android:title="Dividers">
+        <menu>
+            <item
+                android:id="@+id/firstLast"
+                android:title="First / Last"
+                app:actionLayout="@layout/switch_item" />
+            <item
+                android:id="@+id/beforeFirst"
+                android:title="Before first of same"
+                app:actionLayout="@layout/switch_item" />
+            <item
+                android:id="@+id/between"
+                android:title="Between same"
+                app:actionLayout="@layout/switch_item" />
+            <item
+                android:id="@+id/afterLast"
+                android:title="After last of same"
+                app:actionLayout="@layout/switch_item" />
+        </menu>
+    </item>
+    <item android:id="@+id/blankMenu"/>
+    <item
         android:id="@+id/stickyHeaderState"
         android:title="Enable sticky header"
         app:actionLayout="@layout/switch_item"/>
+
     <item
         android:id="@+id/menuStickyHeader"
         android:title="Sticky Header">
