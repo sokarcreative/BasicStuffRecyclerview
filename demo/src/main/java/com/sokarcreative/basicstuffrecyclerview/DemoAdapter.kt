@@ -19,7 +19,7 @@ import com.sokarcreative.basicstuffrecyclerview.models.*
 import com.sokarcreative.library.basicstuffrecyclerview.divider.LinearDividersListener
 import com.sokarcreative.library.stickyheader.LinearStickyHeadersListener
 
-class DemoAdapter(context: Context, val addOrRemove: (movie: Movie) -> Unit, val addOrRemoveAllMovies: (headerCategory: MainViewModel.HeaderCategory) -> Unit, val scrollToPosition: (position: Int) -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), LinearDividersListener, LinearStickyHeadersListener {
+class DemoAdapter(context: Context, val addOrRemove: (movie: Movie) -> Unit, val addOrRemoveAllMovies: (headerCategory: MainViewModel.HeaderCategory) -> Unit, val scrollToPosition: (position: Int) -> Unit, var stickyHeadersEnabled: Triple<Boolean, Boolean, Boolean>) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), LinearDividersListener, LinearStickyHeadersListener {
 
     var items: List<Any> = emptyList()
 
@@ -28,14 +28,15 @@ class DemoAdapter(context: Context, val addOrRemove: (movie: Movie) -> Unit, val
     override fun getItemViewType(position: Int): Int = when (items[position]) {
         is Header -> VIEW_TYPE_HEADER
         is MainViewModel.HeaderCategory -> VIEW_TYPE_CATEGORY
-        is Movie -> VIEW_TYPE_MOVIE
+        is MainViewModel.MovieState -> VIEW_TYPE_MOVIE
         else -> throw IllegalStateException()
     }
 
     override fun isStickyHeader(viewType: Int): Boolean = when (viewType) {
-        VIEW_TYPE_HEADER -> true
-        VIEW_TYPE_CATEGORY -> true
-        else -> false
+        VIEW_TYPE_HEADER -> stickyHeadersEnabled.first
+        VIEW_TYPE_CATEGORY -> stickyHeadersEnabled.second
+        VIEW_TYPE_MOVIE -> stickyHeadersEnabled.third
+        else -> throw IllegalStateException()
     }
 
     val drawableDividerFirstLast: Drawable = ContextCompat.getDrawable(context, R.drawable.divider_first_last)!!
@@ -87,7 +88,7 @@ class DemoAdapter(context: Context, val addOrRemove: (movie: Movie) -> Unit, val
         when (holder) {
             is HeaderViewHolder -> holder.bind(items[position] as Header)
             is CategoryViewHolder -> holder.bind(items[position] as MainViewModel.HeaderCategory, position)
-            is MovieViewHolder -> holder.bind(items[position] as Movie)
+            is MovieViewHolder -> holder.bind(items[position] as MainViewModel.MovieState)
             else -> throw IllegalStateException()
         }
     }
@@ -129,9 +130,10 @@ class DemoAdapter(context: Context, val addOrRemove: (movie: Movie) -> Unit, val
     }
 
     inner class CategoryViewHolder(v: View) : RecyclerView.ViewHolder(v) {
+        val constraintLayout = itemView.findViewById<ConstraintLayout>(R.id.constraintLayout)
         val textViewCategory = itemView.findViewById<TextView>(R.id.textViewCategory)
         val imageViewFavorites = itemView.findViewById<ImageView>(R.id.imageViewFavorites)
-        val constraintLayout = itemView.findViewById<ConstraintLayout>(R.id.constraintLayout)
+
         fun bind(headerCategory: MainViewModel.HeaderCategory, position: Int) {
             with(itemView) {
                 setOnClickListener {
@@ -145,22 +147,39 @@ class DemoAdapter(context: Context, val addOrRemove: (movie: Movie) -> Unit, val
                     }
 
                     with(imageViewFavorites) {
+                        when(headerCategory.header){
+                            Header.MOVIES -> setImageDrawable(ContextCompat.getDrawable(itemView.context, R.drawable.favorite_border))
+                            Header.FAVORITES -> setImageDrawable(ContextCompat.getDrawable(itemView.context, R.drawable.remove_circle_outline))
+                        }
                         setOnClickListener {
                             addOrRemoveAllMovies.invoke(headerCategory)
                         }
                     }
                 }
             }
-
         }
     }
 
     inner class MovieViewHolder(v: View) : RecyclerView.ViewHolder(v) {
-        val textView = itemView as TextView
-        fun bind(movie: Movie) {
-            textView.text = movie.name
-            textView.setOnClickListener {
-                addOrRemove.invoke(movie)
+        val constraintLayout = itemView.findViewById<ConstraintLayout>(R.id.constraintLayout)
+        val textViewTitle = itemView.findViewById<TextView>(R.id.textViewTitle)
+        val imageViewFavorite = itemView.findViewById<ImageView>(R.id.imageViewFavorite)
+
+        fun bind(movieState: MainViewModel.MovieState) {
+            with(constraintLayout) {
+                with(textViewTitle) {
+                    text = movieState.movie().name
+                }
+
+                with(imageViewFavorite) {
+                    when(movieState){
+                        is MainViewModel.MovieState.Default -> setImageDrawable(ContextCompat.getDrawable(itemView.context, R.drawable.favorite_border))
+                        is MainViewModel.MovieState.Favorite -> setImageDrawable(ContextCompat.getDrawable(itemView.context, R.drawable.remove_circle_outline))
+                    }
+                    setOnClickListener {
+                        addOrRemove.invoke(movieState.movie())
+                    }
+                }
             }
         }
     }

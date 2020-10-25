@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/dividersState"
+        android:title="Enable dividers"
+        app:actionLayout="@layout/switch_item" />
+    <item
+        android:id="@+id/stickyHeaderState"
+        android:title="Enable sticky header"
+        app:actionLayout="@layout/switch_item"/>
+    <item
+        android:id="@+id/menuStickyHeader"
+        android:title="Sticky Header">
+        <menu>
+            <item
+                android:id="@+id/headerStickyHeader"
+                android:title="Header"
+                app:actionLayout="@layout/switch_item" />
+            <item
+                android:id="@+id/categoryStickyHeader"
+                android:title="Category"
+                app:actionLayout="@layout/switch_item" />
+            <item
+                android:id="@+id/movieStickyHeader"
+                android:title="Movie"
+                app:actionLayout="@layout/switch_item" />
+        </menu>
+    </item>
+</menu>

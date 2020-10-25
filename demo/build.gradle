@@ -14,7 +14,7 @@ android {
 
     defaultConfig {
         applicationId "com.sokarcreative.basicstuffrecyclerview"
-        minSdkVersion 16
+        minSdkVersion 17
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -39,6 +39,8 @@ dependencies {
 
     implementation 'androidx.constraintlayout:constraintlayout:2.0.2'
 
+    implementation 'com.google.android.material:material:1.2.1'
+
     // Lifecycle and ViewModel
     def lifecycle_version = "2.2.0"
     // ViewModel
@@ -52,6 +54,8 @@ dependencies {
 
     // Tuple
     implementation 'com.github.Zhuinden:livedata-combinetuple-kt:1.0.0'
+
+
 
     implementation project(':library')
 }
