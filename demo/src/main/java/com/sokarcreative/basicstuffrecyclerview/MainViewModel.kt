@@ -29,11 +29,14 @@ class MainViewModel : ViewModel() {
                         addAll(favorites.filter { it.category == category }.map { MovieState.Favorite(it) })
                     }
                 }
-                add(Header.MOVIES)
+
                 val moviesLeft = movies.subtract(favorites)
-                moviesLeft.map { it.category }.distinct().forEach { category ->
-                    add(HeaderCategory(Header.MOVIES, category))
-                    addAll(moviesLeft.filter { it.category == category }.map { MovieState.Default(it) })
+                if(moviesLeft.isNotEmpty()){
+                    add(Header.MOVIES)
+                    moviesLeft.map { it.category }.distinct().forEach { category ->
+                        add(HeaderCategory(Header.MOVIES, category))
+                        addAll(moviesLeft.filter { it.category == category }.map { MovieState.Default(it) })
+                    }
                 }
             }
         }
