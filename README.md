@@ -1,5 +1,98 @@
+BasicStuffRecyclerview (> 0.3.3)
+============
+This library is in active development, a stable release is coming soon.
+============
 
-BasicStuffRecyclerview
+An Android library allowing to add custom dividers between ViewHolders from different viewTypes. Moreover, you can add (custom or not) sticky headers depending on viewTypes. 
+
+Features
+============
+* Set dividers decoration between viewHolders from the same viewType (only for LinearLayoutManager).
+* Set dividers decoration between viewHolders from differents viewTypes (only for LinearLayoutManager).
+* Set first/last decorations depending on first/last viewHolder (only for LinearLayoutManager).
+* Set Sticky headers depending on viewTypes and custom them (or not). (only for LinearLayoutManager in vertical orientation).
+
+Usage
+============
+
+In your app `build.gradle`:
+
+```
+implementation 'com.github.sokarcreative:BasicStuffRecyclerview:$latest_version'
+```
+In your project `build.gradle`:
+```
+allprojects {
+    repositories {
+        maven { url "https://jitpack.io" }
+    }
+}
+```
+Example
+============
+```
+// If you want to use dividers
+recyclerView.addItemDecoration(LinearItemDecoration(recyclerView.adapter as LinearDividersListener))
+// If you want to use sticky headers
+recyclerView.addItemDecoration(StickyHeaderLinearItemDecoration(recyclerView.adapter as LinearStickyHeadersListener).also {
+    recyclerView.addOnItemTouchListener(it)
+})
+```
+Methods you may override
+============
+## Dividers
+```
+@Nullable
+@Override
+public Drawable getFirstDecoration(int viewType) {
+    return super.getFirstDecoration(viewType);
+}
+
+@Nullable
+@Override
+public Drawable getFirstDividerDecoration(int viewType, int previousViewType) {
+    return super.getFirstDividerDecoration(viewType, previousViewType);
+}
+
+@Nullable
+@Override
+public Drawable getDividerDecoration(int viewType) {
+    return super.getDividerDecoration(viewType);
+}
+
+@Nullable
+@Override
+public Drawable getLastDividerDecoration(int viewType, int nextViewType) {
+    return super.getLastDividerDecoration(viewType, nextViewType);
+}
+
+@Nullable
+@Override
+public Drawable getLastDecoration(int viewType) {
+    return super.getLastDecoration(viewType);
+}
+
+```
+## Sticky headers
+```
+@Override
+public boolean isStickyHeader(int viewType) {
+    return super.isStickyHeader(viewType);
+}
+
+@NotNull
+@Override
+public View onCreateAndBindStickyView(@NotNull RecyclerView parent, int position) {
+    return super.onCreateAndBindStickyView(parent, position);
+}
+
+@Override
+public void onStickyViewClick(@NotNull RecyclerView parent, int position) {
+    super.onStickyViewClick(parent, position);
+}
+```
+
+BasicStuffRecyclerview (<= 0.3.3)
 ============
 This library will be no longer maintained. I made this library quickly to learn Kotlin and at this time I think this library is not built the way it should be. I'm not using this library anymore (only when maintaining old projects). To be honest features like "Dividers", "Sticky headers" and "Drag and drop" should be seperate interfaces and not an (oven-all) abstract class extending RecyclerView.Adapter. There are other existing libraries that are much more complete and flexible than this one.
 ============
@@ -28,7 +121,7 @@ Usage
 In your app `build.gradle`:
 
 ```
-implementation 'com.github.sokarcreative:BasicStuffRecyclerview:$latest_version'
+implementation 'com.github.sokarcreative:BasicStuffRecyclerview:$latest_version' (<= 0.3.3)
 ```
 In your project `build.gradle`:
 ```
