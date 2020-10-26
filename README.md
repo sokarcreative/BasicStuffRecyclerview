@@ -9,9 +9,8 @@ An Android library allowing to add custom dividers between ViewHolders from diff
 
 Features
 ============
-* Set dividers decoration between viewHolders from the same viewType (only for LinearLayoutManager).
-* Set dividers decoration between viewHolders from differents viewTypes (only for LinearLayoutManager).
-* Set first/last decorations depending on first/last viewHolder (only for LinearLayoutManager).
+* Set dividers decoration between ViewHolders from the same/different viewType (only for LinearLayoutManager).
+* Set first/last decorations depending on first/last ViewHolder (only for LinearLayoutManager).
 * Set Sticky headers depending on viewTypes and custom them (or not). (only for LinearLayoutManager in vertical orientation).
 
 Usage
