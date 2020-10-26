@@ -1,12 +1,12 @@
-package com.sokarcreative.basicstuffrecyclerview
+package com.sokarcreative.demo
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
-import com.sokarcreative.basicstuffrecyclerview.models.Category
-import com.sokarcreative.basicstuffrecyclerview.models.Header
-import com.sokarcreative.basicstuffrecyclerview.models.Movie
+import com.sokarcreative.demo.models.Category
+import com.sokarcreative.demo.models.Header
+import com.sokarcreative.demo.models.Movie
 import com.zhuinden.livedatacombinetuplekt.combineTuple
 
 class MainViewModel : ViewModel() {

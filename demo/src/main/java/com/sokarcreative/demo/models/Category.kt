@@ -1,7 +1,7 @@
-package com.sokarcreative.basicstuffrecyclerview.models
+package com.sokarcreative.demo.models
 
 import androidx.annotation.StringRes
-import com.sokarcreative.basicstuffrecyclerview.R
+import com.sokarcreative.demo.R
 
 enum class Category {
     HORROR,

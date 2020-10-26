@@ -1,4 +1,4 @@
-package com.sokarcreative.basicstuffrecyclerview
+package com.sokarcreative.demo
 
 import android.graphics.Color
 import android.os.Bundle

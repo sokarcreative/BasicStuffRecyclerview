@@ -1,4 +1,4 @@
-package com.sokarcreative.basicstuffrecyclerview
+package com.sokarcreative.demo
 
 import android.content.Context
 import android.graphics.drawable.Drawable
@@ -15,7 +15,7 @@ import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.sokarcreative.basicstuffrecyclerview.models.*
+import com.sokarcreative.demo.models.*
 import com.sokarcreative.basicstuffrecyclerview.divider.LinearDividersListener
 import com.sokarcreative.basicstuffrecyclerview.stickyheader.LinearStickyHeadersListener
 

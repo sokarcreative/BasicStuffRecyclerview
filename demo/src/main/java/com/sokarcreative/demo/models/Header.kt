@@ -1,9 +1,9 @@
-package com.sokarcreative.basicstuffrecyclerview.models
+package com.sokarcreative.demo.models
 
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import com.sokarcreative.basicstuffrecyclerview.R
+import com.sokarcreative.demo.R
 
 enum class Header {
     FAVORITES,
