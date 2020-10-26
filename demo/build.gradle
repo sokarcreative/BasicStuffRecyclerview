@@ -55,7 +55,5 @@ dependencies {
     // Tuple
     implementation 'com.github.Zhuinden:livedata-combinetuple-kt:1.0.0'
 
-
-
     implementation project(':library')
 }
