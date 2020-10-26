@@ -39,7 +39,7 @@ recyclerView.addItemDecoration(StickyHeaderLinearItemDecoration(recyclerView.ada
     recyclerView.addOnItemTouchListener(it)
 })
 
-// Optional but recommended after changing items list in adapter since reordering affects divider from LinearItemDecoration
+// Optional but recommended after changing items list in adapter since reordering affects dividers from LinearItemDecoration
 recyclerView.invalidateItemDecorations()
 ```
 Methods you may override
