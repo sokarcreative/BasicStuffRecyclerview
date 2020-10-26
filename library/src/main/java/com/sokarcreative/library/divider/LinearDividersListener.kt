@@ -1,4 +1,4 @@
-package com.sokarcreative.library.basicstuffrecyclerview.divider
+package com.sokarcreative.library.divider
 
 import android.graphics.drawable.Drawable
 

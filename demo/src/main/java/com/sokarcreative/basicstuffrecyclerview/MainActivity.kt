@@ -14,8 +14,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
-import com.google.android.material.navigation.NavigationView
-import com.sokarcreative.library.basicstuffrecyclerview.divider.LinearDividersListener
+import com.sokarcreative.library.divider.LinearDividersListener
 import com.sokarcreative.library.divider.LinearItemDecoration
 import com.sokarcreative.library.stickyheader.LinearStickyHeadersListener
 import com.sokarcreative.library.stickyheader.StickyHeaderLinearItemDecoration

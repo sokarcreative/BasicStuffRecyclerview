@@ -1,6 +1,5 @@
 package com.sokarcreative.library.stickyheader
 
-import android.graphics.drawable.Drawable
 import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import java.lang.IllegalStateException

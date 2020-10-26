@@ -6,7 +6,6 @@ import android.graphics.drawable.Drawable
 import android.view.View
 import androidx.core.view.*
 import androidx.recyclerview.widget.RecyclerView
-import com.sokarcreative.library.basicstuffrecyclerview.divider.LinearDividersListener
 
 
 /**
