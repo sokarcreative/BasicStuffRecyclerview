@@ -16,8 +16,8 @@ import androidx.core.graphics.BlendModeCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.sokarcreative.basicstuffrecyclerview.models.*
-import com.sokarcreative.library.divider.LinearDividersListener
-import com.sokarcreative.library.stickyheader.LinearStickyHeadersListener
+import com.sokarcreative.basicstuffrecyclerview.divider.LinearDividersListener
+import com.sokarcreative.basicstuffrecyclerview.stickyheader.LinearStickyHeadersListener
 
 class DemoAdapter(context: Context, val addOrRemove: (movie: Movie) -> Unit, val addOrRemoveAllMovies: (headerCategory: MainViewModel.HeaderCategory) -> Unit, val scrollToPosition: (position: Int) -> Unit, var stickyHeadersEnabled: Triple<Boolean, Boolean, Boolean>, var dividersEnabled: MainViewModel.DividersEnabled) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), LinearDividersListener, LinearStickyHeadersListener {
 

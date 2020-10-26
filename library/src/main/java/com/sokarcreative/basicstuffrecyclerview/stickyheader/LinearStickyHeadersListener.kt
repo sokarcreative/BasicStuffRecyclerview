@@ -1,4 +1,4 @@
-package com.sokarcreative.library.stickyheader
+package com.sokarcreative.basicstuffrecyclerview.stickyheader
 
 import androidx.recyclerview.widget.RecyclerView
 import android.view.View

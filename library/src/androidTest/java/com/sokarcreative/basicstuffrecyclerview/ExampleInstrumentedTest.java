@@ -1,4 +1,4 @@
-package com.sokarcreative.library;
+package com.sokarcreative.basicstuffrecyclerview;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

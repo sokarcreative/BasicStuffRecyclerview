@@ -1,4 +1,4 @@
-package com.sokarcreative.library;
+package com.sokarcreative.basicstuffrecyclerview;
 
 /**
  * Example local unit test, which will execute on the development machine (host).

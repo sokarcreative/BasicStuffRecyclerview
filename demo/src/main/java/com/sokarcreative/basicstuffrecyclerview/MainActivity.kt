@@ -14,10 +14,10 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
-import com.sokarcreative.library.divider.LinearDividersListener
-import com.sokarcreative.library.divider.LinearItemDecoration
-import com.sokarcreative.library.stickyheader.LinearStickyHeadersListener
-import com.sokarcreative.library.stickyheader.StickyHeaderLinearItemDecoration
+import com.sokarcreative.basicstuffrecyclerview.divider.LinearDividersListener
+import com.sokarcreative.basicstuffrecyclerview.divider.LinearItemDecoration
+import com.sokarcreative.basicstuffrecyclerview.stickyheader.LinearStickyHeadersListener
+import com.sokarcreative.basicstuffrecyclerview.stickyheader.StickyHeaderLinearItemDecoration
 import kotlinx.android.synthetic.main.activity_main.*
 
 

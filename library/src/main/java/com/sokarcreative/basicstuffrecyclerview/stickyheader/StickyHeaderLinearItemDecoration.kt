@@ -1,4 +1,4 @@
-package com.sokarcreative.library.stickyheader
+package com.sokarcreative.basicstuffrecyclerview.stickyheader
 
 import android.graphics.Canvas
 import android.view.MotionEvent
