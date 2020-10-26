@@ -33,10 +33,15 @@ Example
 ```
 // If you want to use dividers
 recyclerView.addItemDecoration(LinearItemDecoration(recyclerView.adapter as LinearDividersListener))
+
 // If you want to use sticky headers
 recyclerView.addItemDecoration(StickyHeaderLinearItemDecoration(recyclerView.adapter as LinearStickyHeadersListener).also {
     recyclerView.addOnItemTouchListener(it)
 })
+
+// Optional but recommended after changing items list in adapter since reordering affects dividers from LinearItemDecoration
+// Anyway, no need to call it if you use notifyDataSetChanged()
+recyclerView.invalidateItemDecorations()
 ```
 Methods you may override
 ============
