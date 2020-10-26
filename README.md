@@ -1,6 +1,6 @@
 BasicStuffRecyclerview (> 0.3.3)
 ============
-Because on every project I need my own library (relevant library to me) and I'm bored because it was'nt designed the way it should be, so I decided to finally maintain it. Sry for people using it before but breaking changes is mandatory :/
+Because on every project I need my own library (relevant library to me) and I'm bored because it was'nt designed the way it should be, so I decided to finally maintain it. Sry for people using it before but breaking changes are mandatory :/
 
 This library is in active development, a stable release is coming soon.
 ============
