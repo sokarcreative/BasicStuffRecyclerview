@@ -1,7 +1,5 @@
 BasicStuffRecyclerview (> 0.3.3)
 ============
-On every project I need my own library (relevant to me), so I decided to finally maintain it.
-============
 
 An Android library allowing to add custom dividers between ViewHolders from different viewTypes. Moreover, you can add (custom or not) sticky headers depending on viewTypes. 
 
