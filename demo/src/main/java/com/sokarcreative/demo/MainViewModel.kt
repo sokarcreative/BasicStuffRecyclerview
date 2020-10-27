@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
+import com.sokarcreative.demo.models.Actor
 import com.sokarcreative.demo.models.Category
 import com.sokarcreative.demo.models.Header
 import com.sokarcreative.demo.models.Movie
@@ -11,18 +12,25 @@ import com.zhuinden.livedatacombinetuplekt.combineTuple
 
 class MainViewModel : ViewModel() {
 
+    private val isActorsOrientationHorizontalLiveData: MutableLiveData<Boolean> = MutableLiveData(false)
+
     private val isDividerFeatureEnabledLiveData: MutableLiveData<Boolean> = MutableLiveData(true)
     private val isStickyHeaderFeatureEnabledLiveData: MutableLiveData<Boolean> = MutableLiveData(true)
     private val favoritesLiveData: MutableLiveData<Set<Movie>> = MutableLiveData(emptySet())
-    private val moviesLiveData: MutableLiveData<Set<Movie>> = MutableLiveData(moviesByDefault)
 
     private val stickyHeadersEnabledLiveData: MutableLiveData<Triple<Boolean, Boolean, Boolean>> = MutableLiveData(Triple(true, true, false))
     private val dividersEnabledLiveData: MutableLiveData<DividersEnabled> = MutableLiveData(DividersEnabled(isFirstLastDecorationEnabled = true, isFirstDividerDecorationEnabled = true, isDividerDecorationEnabled = true, isLastDividerDecorationEnabled = true, ))
 
-    private val itemsLiveData: LiveData<List<Any>> = combineTuple(moviesLiveData, favoritesLiveData).map { (movies, favorites) ->
-        if (movies == null || favorites == null) emptyList()
+    private val itemsLiveData: LiveData<List<Any>> = combineTuple(favoritesLiveData, isActorsOrientationHorizontalLiveData).map { (favorites, isActorsOrientationHorizontal) ->
+        if (favorites == null || isActorsOrientationHorizontal == null) emptyList()
         else {
             arrayListOf<Any>().apply {
+                add(Header.ACTORS)
+                if(isActorsOrientationHorizontal){
+                    add(Actors(actors))
+                }else{
+                    addAll(actors)
+                }
                 if (favorites.isNotEmpty()) {
                     add(Header.FAVORITES)
                     favorites.map { it.category }.distinct().forEach { category ->
@@ -41,6 +49,11 @@ class MainViewModel : ViewModel() {
                 }
             }
         }
+    }
+
+    fun isActorsOrientationHorizontalLiveData(): LiveData<Boolean> = isActorsOrientationHorizontalLiveData
+    fun setIsActorsOrientationHorizontalLiveData(isActorsOrientationHorizontal: Boolean) {
+        isActorsOrientationHorizontalLiveData.value = isActorsOrientationHorizontal
     }
 
     fun isDividerFeatureEnabledLiveData(): LiveData<Boolean> = isDividerFeatureEnabledLiveData
@@ -84,15 +97,22 @@ class MainViewModel : ViewModel() {
             }
             Header.MOVIES -> {
                 favoritesLiveData.value = favoritesLiveData.value!!.toMutableSet().apply {
-                    addAll(moviesLiveData.value!!.filter { it.category == headerCategory.category })
+                    addAll(movies.filter { it.category == headerCategory.category })
                 }
             }
         }
-
     }
 
+
+
     companion object {
-        val moviesByDefault: Set<Movie> = setOf(
+        val actors: Set<Actor> = setOf(
+                Actor("Edward Norton"),
+                Actor("Brad Pitt"),
+                Actor("Helena Bonham Carter"),
+                Actor("Jared Leto")
+        )
+        val movies: Set<Movie> = setOf(
                 Movie("I spit on your grave", Category.HORROR),
                 Movie("I spit on your grave 1", Category.HORROR),
                 Movie("I spit on your grave 2", Category.HORROR),
@@ -119,6 +139,7 @@ class MainViewModel : ViewModel() {
     data class DividersEnabled(val isFirstLastDecorationEnabled: Boolean, val isFirstDividerDecorationEnabled: Boolean, val isDividerDecorationEnabled: Boolean, val isLastDividerDecorationEnabled: Boolean)
 
     data class HeaderCategory(val header: Header, val category: Category)
+
     sealed class MovieState {
         abstract fun movie(): Movie
         data class Default(val movie: Movie): MovieState() {
@@ -133,4 +154,6 @@ class MainViewModel : ViewModel() {
             }
         }
     }
+
+    data class Actors(val actors: Set<Actor>)
 }

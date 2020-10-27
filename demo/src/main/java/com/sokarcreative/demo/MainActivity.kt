@@ -12,7 +12,6 @@ import androidx.core.graphics.BlendModeCompat
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.sokarcreative.basicstuffrecyclerview.divider.LinearDividersListener
 import com.sokarcreative.basicstuffrecyclerview.divider.LinearItemDecoration
@@ -125,47 +124,54 @@ class MainActivity : AppCompatActivity() {
                     recyclerView.scrollToPosition(position)
                 },
                 stickyHeadersEnabled = mainViewModel.getStickyHeadersEnabledLiveData().value!!,
-                dividersEnabled = mainViewModel.getDividersEnabledLiveData().value!!
+                dividersEnabled = mainViewModel.getDividersEnabledLiveData().value!!,
+                onActorsOrientationChanged = { isActorsOrientationHorizontal ->
+                    mainViewModel.setIsActorsOrientationHorizontalLiveData(isActorsOrientationHorizontal = isActorsOrientationHorizontal)
+                },
+                isActorsOrientationHorizontal = {
+                    mainViewModel.isActorsOrientationHorizontalLiveData().value!!
+                },
+                isStickyHeaderFeatureEnabled = {
+                    mainViewModel.isDividerFeatureEnabledLiveData().value!!
+                }
         )
 
         recyclerView.itemAnimator.takeIf { it is SimpleItemAnimator }?.let {
             (it as SimpleItemAnimator).supportsChangeAnimations = false
         }
 
-        mainViewModel.getItemsLiveData().observe(this, Observer {
-            (recyclerView.adapter as DemoAdapter).refresh(it)
+        mainViewModel.getItemsLiveData().observe(this, Observer { items ->
+            (recyclerView.adapter as DemoAdapter).refresh(items)
             recyclerView.invalidateItemDecorations()
         })
 
         mainViewModel.isDividerFeatureEnabledLiveData().observe(this, Observer { isDividerFeatureEnabled ->
-            recyclerView.itemDecorations().filterIsInstance<LinearItemDecoration>().forEach {
-                recyclerView.removeItemDecoration(it)
-            }
+            recyclerView.removeAllLinearItemDecorations()
             if (isDividerFeatureEnabled) {
-                recyclerView.addItemDecoration(LinearItemDecoration(recyclerView.adapter as LinearDividersListener))
+                recyclerView.addLinearItemDecoration(LinearItemDecoration(recyclerView.adapter as LinearDividersListener))
             }
-            recyclerView.invalidateItemDecorations()
+            (recyclerView.adapter as DemoAdapter).items.indexOfFirst { it is MainViewModel.Actors }.takeIf { it != -1 }?.let {
+                (recyclerView.findViewHolderForAdapterPosition(it) as? DemoAdapter.ActorsViewModel)?.notifyDividersChanged()
+            }
         })
 
         mainViewModel.isStickyHeaderFeatureEnabledLiveData().observe(this, Observer { isStickyHeaderFeatureEnabled ->
-            recyclerView.itemDecorations().filterIsInstance<StickyHeaderLinearItemDecoration>().forEach {
-                recyclerView.removeOnItemTouchListener(it)
-                recyclerView.removeItemDecoration(it)
-            }
+            recyclerView.removeAllStickyHeaderItemDecorations()
             if (isStickyHeaderFeatureEnabled) {
-                recyclerView.addItemDecoration(StickyHeaderLinearItemDecoration(recyclerView.adapter as LinearStickyHeadersListener).also {
-                    recyclerView.addOnItemTouchListener(it)
-                })
+                recyclerView.addStickyHeaderItemDecoration(StickyHeaderLinearItemDecoration(recyclerView.adapter as LinearStickyHeadersListener))
             }
-            recyclerView.invalidateItemDecorations()
         })
 
         mainViewModel.getStickyHeadersEnabledLiveData().observe(this, Observer {
             (recyclerView.adapter as DemoAdapter).stickyHeadersEnabled = it
             recyclerView.invalidateItemDecorations()
         })
+
         mainViewModel.getDividersEnabledLiveData().observe(this, Observer {
             (recyclerView.adapter as DemoAdapter).dividersEnabled = it
+            (recyclerView.adapter as DemoAdapter).items.indexOfFirst { it is MainViewModel.Actors }.takeIf { it != -1 }?.let {
+                (recyclerView.findViewHolderForAdapterPosition(it) as? DemoAdapter.ActorsViewModel)?.notifyDividersChanged()
+            }
             recyclerView.invalidateItemDecorations()
         })
     }
@@ -177,15 +183,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-
-    fun RecyclerView.itemDecorations(): Iterable<RecyclerView.ItemDecoration> {
-        val itemDecorations = arrayListOf<RecyclerView.ItemDecoration>()
-        for (i in 0 until itemDecorationCount) {
-            itemDecorations.add(getItemDecorationAt(i))
-        }
-        return itemDecorations
     }
 
 
