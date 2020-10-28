@@ -24,6 +24,8 @@ class StickyHeaderLinearItemDecoration(val linearStickyHeadersListener: LinearSt
     override fun onDrawOver(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State) {
         super.onDrawOver(canvas, parent, state)
 
+        mStickyHeaderInfo = null
+
         val adapter = parent.adapter ?: return
 
         // Sticky Header supports only VERTICAL orientation of  LinearLayoutManager
@@ -50,7 +52,7 @@ class StickyHeaderLinearItemDecoration(val linearStickyHeadersListener: LinearSt
                 ?: return
 
         // Draw current sticky header but check if no conflict with the next sticky header if he exists
-        currentStickyHeaderInfo.drawStickyView(canvas, parent, findNextClosestStickyHeaderView(adapter, parent, currentStickyHeaderInfo))
+        currentStickyHeaderInfo.drawStickyView(canvas, parent, currentStickyHeaderInfo, findNextClosestStickyHeaderView(adapter, parent, currentStickyHeaderInfo))
     }
 
 
@@ -117,16 +119,19 @@ class StickyHeaderLinearItemDecoration(val linearStickyHeadersListener: LinearSt
 
     internal inner class StickyHeaderInfo(val adapterPosition: Int, val stickyView: View) {
 
+        internal var visibleHeightOnScreen: Int = 0
+
         /**
          * Draw the sticky view at the top of the recyclerview.
          *
          * @param canvas Canvas to draw into.
          * @param nextStickyHeader if null just draw in 0,0 otherwhise need to make a translation in y.
          */
-        internal fun drawStickyView(canvas: Canvas, parent: RecyclerView, nextStickyHeader: View?) {
+        internal fun drawStickyView(canvas: Canvas, parent: RecyclerView, stickyHeaderInfo: StickyHeaderInfo, nextStickyHeader: View?) {
             canvas.save()
             canvas.translate(parent.paddingLeft + stickyView.marginStart.toFloat(), nextStickyHeader?.let { (nextStickyHeader.top - stickyView.height).toFloat() }
                     ?: 0f)
+            stickyHeaderInfo.visibleHeightOnScreen = nextStickyHeader?.top ?: stickyView.height
             stickyView.draw(canvas)
             canvas.restore()
         }
@@ -135,27 +140,24 @@ class StickyHeaderLinearItemDecoration(val linearStickyHeadersListener: LinearSt
 
     override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
         mStickyHeaderInfo?.let { stickyHeaderInfo ->
-            if (e.y.toInt() in 0..stickyHeaderInfo.stickyView.height) {
+            if (e.y.toInt() in 0..stickyHeaderInfo.visibleHeightOnScreen) {
                 when (e.action) {
                     MotionEvent.ACTION_DOWN -> {
-                        mInterceptTouchEventInfo = InterceptTouchEventInfo(stickyHeaderInfo, System.currentTimeMillis())
+                        if(mTimeBeforeNextClick < System.currentTimeMillis()){
+                            mInterceptTouchEventInfo = InterceptTouchEventInfo(stickyHeaderInfo, System.currentTimeMillis())
+                        }
                     }
                     MotionEvent.ACTION_UP -> {
                         mInterceptTouchEventInfo?.let { interceptTouchEventInfo ->
-                            val pressDuration = System.currentTimeMillis() - interceptTouchEventInfo.pressStartTime
-                            if (stickyHeaderInfo.adapterPosition == interceptTouchEventInfo.stickyHeaderInfo.adapterPosition) {
-                                if (pressDuration < durationBetweenTwoStickyHeaderClick) {
-                                    linearStickyHeadersListener.onStickyViewClick(rv, stickyHeaderInfo.adapterPosition)
-                                    stickyHeaderInfo.stickyView.performClick()
-                                    return true
-                                }
+                            if (stickyHeaderInfo.adapterPosition == interceptTouchEventInfo.stickyHeaderInfo.adapterPosition && System.currentTimeMillis() - interceptTouchEventInfo.actionDownTime < MAX_DURATION_BETWEEN_ACTION_DOWN_AND_ACTION_UP) {
+                                linearStickyHeadersListener.onStickyViewClick(rv, stickyHeaderInfo.adapterPosition)
+                                stickyHeaderInfo.stickyView.performClick()
                                 mInterceptTouchEventInfo = null
-                            } else {
-                                mInterceptTouchEventInfo = null
+                                mTimeBeforeNextClick = System.currentTimeMillis() + MIN_DURATION_BETWEEN_TWO_CLICKS
+                                return true
                             }
-                        } ?: let {
-                            mInterceptTouchEventInfo = null
                         }
+                        return true
                     }
                 }
             } else {
@@ -165,8 +167,8 @@ class StickyHeaderLinearItemDecoration(val linearStickyHeadersListener: LinearSt
         return false
     }
 
-    private class InterceptTouchEventInfo(val stickyHeaderInfo: StickyHeaderInfo, val pressStartTime: Long)
-
+    private class InterceptTouchEventInfo(val stickyHeaderInfo: StickyHeaderInfo, val actionDownTime: Long)
+    private var mTimeBeforeNextClick: Long = 0
     private var mInterceptTouchEventInfo: InterceptTouchEventInfo? = null
 
     override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {
@@ -178,7 +180,8 @@ class StickyHeaderLinearItemDecoration(val linearStickyHeadersListener: LinearSt
     }
 
     companion object {
-        val durationBetweenTwoStickyHeaderClick: Int = 1000
+        const val MAX_DURATION_BETWEEN_ACTION_DOWN_AND_ACTION_UP: Int = 1000
+        const val MIN_DURATION_BETWEEN_TWO_CLICKS: Int = 300
     }
 
 }
