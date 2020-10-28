@@ -131,7 +131,7 @@ class MainActivity : AppCompatActivity() {
                 isActorsOrientationHorizontal = {
                     mainViewModel.isActorsOrientationHorizontalLiveData().value!!
                 },
-                isStickyHeaderFeatureEnabled = {
+                isDividerFeatureEnabled = {
                     mainViewModel.isDividerFeatureEnabledLiveData().value!!
                 }
         )

@@ -21,7 +21,7 @@ import com.sokarcreative.basicstuffrecyclerview.divider.LinearDividersListener
 import com.sokarcreative.basicstuffrecyclerview.divider.LinearItemDecoration
 import com.sokarcreative.basicstuffrecyclerview.stickyheader.LinearStickyHeadersListener
 
-class DemoAdapter(context: Context, val addOrRemove: (movie: Movie) -> Unit, val addOrRemoveAllMovies: (headerCategory: MainViewModel.HeaderCategory) -> Unit, val scrollToPosition: (position: Int) -> Unit, var stickyHeadersEnabled: Triple<Boolean, Boolean, Boolean>, var dividersEnabled: MainViewModel.DividersEnabled, val onActorsOrientationChanged: (isActorsOrientationHorizontal: Boolean) -> Unit, val isActorsOrientationHorizontal: () -> Boolean, val isStickyHeaderFeatureEnabled: () -> Boolean) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), LinearDividersListener, LinearStickyHeadersListener {
+class DemoAdapter(context: Context, val addOrRemove: (movie: Movie) -> Unit, val addOrRemoveAllMovies: (headerCategory: MainViewModel.HeaderCategory) -> Unit, val scrollToPosition: (position: Int) -> Unit, var stickyHeadersEnabled: Triple<Boolean, Boolean, Boolean>, var dividersEnabled: MainViewModel.DividersEnabled, val onActorsOrientationChanged: (isActorsOrientationHorizontal: Boolean) -> Unit, val isActorsOrientationHorizontal: () -> Boolean, val isDividerFeatureEnabled: () -> Boolean) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), LinearDividersListener, LinearStickyHeadersListener {
 
     var items: List<Any> = emptyList()
 
@@ -150,15 +150,17 @@ class DemoAdapter(context: Context, val addOrRemove: (movie: Movie) -> Unit, val
         val switchOrientation = itemView.findViewById<SwitchCompat>(R.id.switchOrientation)
 
         init {
-            switchOrientation.setOnCheckedChangeListener { buttonView, isChecked ->
-                onActorsOrientationChanged.invoke(isChecked)
-            }
+
         }
 
         fun bind(header: Header) {
             when (header) {
                 Header.ACTORS -> {
+                    switchOrientation.setOnCheckedChangeListener(null)
                     switchOrientation.isChecked = isActorsOrientationHorizontal()
+                    switchOrientation.setOnCheckedChangeListener { buttonView, isChecked ->
+                        onActorsOrientationChanged.invoke(isChecked)
+                    }
                     switchOrientation.visibility = View.VISIBLE
                 }
                 else -> {
@@ -182,7 +184,7 @@ class DemoAdapter(context: Context, val addOrRemove: (movie: Movie) -> Unit, val
 
         fun bind(actors: MainViewModel.Actors) {
             recyclerView.removeAllLinearItemDecorations()
-            if(isStickyHeaderFeatureEnabled()){
+            if(isDividerFeatureEnabled()){
                 recyclerView.addItemDecoration(LinearItemDecoration(recyclerView.adapter as LinearDividersListener))
             }
 
@@ -193,14 +195,13 @@ class DemoAdapter(context: Context, val addOrRemove: (movie: Movie) -> Unit, val
 
             recyclerView.invalidateItemDecorations()
         }
-        
+
         fun notifyDividersChanged(){
+            (recyclerView.adapter as ActorsAdapter).dividersEnabled = this@DemoAdapter.dividersEnabled
             recyclerView.removeAllLinearItemDecorations()
-            if(isStickyHeaderFeatureEnabled()){
+            if(isDividerFeatureEnabled()){
                 recyclerView.addItemDecoration(LinearItemDecoration(recyclerView.adapter as LinearDividersListener))
             }
-            (recyclerView.adapter as ActorsAdapter).dividersEnabled = this@DemoAdapter.dividersEnabled
-            recyclerView.invalidateItemDecorations()
         }
     }
 
