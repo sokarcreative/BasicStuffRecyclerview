@@ -21,5 +21,6 @@
     <color name="text_light_on_dark">#EBFFFFFF</color>
     <color name="text_light_on_dark_disabled">#61FFFFFF</color>
     <color name="textColor">@android:color/black</color>
+    <color name="whiteColorWithDarkSupport">@android:color/white</color>
 
 </resources>

@@ -17,4 +17,5 @@
     <color name="text_light_on_dark">#EBFFFFFF</color>
     <color name="text_light_on_dark_disabled">#61FFFFFF</color>
     <color name="textColor">#DEFFFFFF</color>
+    <color name="whiteColorWithDarkSupport">@color/textColor</color>
 </resources>
