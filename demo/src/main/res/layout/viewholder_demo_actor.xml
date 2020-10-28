@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView
-    android:background="@android:color/white"
+    android:background="@color/background_overlay_background_8_percent"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:paddingHorizontal="24dp"
     android:paddingVertical="16dp"

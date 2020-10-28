@@ -20,7 +20,7 @@ import com.sokarcreative.basicstuffrecyclerview.divider.LinearDividersListener
 import com.sokarcreative.basicstuffrecyclerview.divider.LinearItemDecoration
 import com.sokarcreative.basicstuffrecyclerview.stickyheader.LinearStickyHeadersListener
 
-class DemoAdapter(context: Context, val addOrRemove: (movie: Movie) -> Unit, val addOrRemoveAllMovies: (headerCategory: MainViewModel.HeaderCategory) -> Unit, val scrollToPosition: (position: Int) -> Unit, var stickyHeadersEnabled: Triple<Boolean, Boolean, Boolean>, var dividersEnabled: MainViewModel.DividersEnabled, val onActorsOrientationChanged: (isActorsOrientationHorizontal: Boolean) -> Unit, val isActorsOrientationHorizontal: () -> Boolean, val isDividerFeatureEnabled: () -> Boolean) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), LinearDividersListener, LinearStickyHeadersListener {
+class DemoAdapter(context: Context, val addMovie: (movie: Movie) -> Unit, val removeMovie: (movie: Movie) -> Unit, val addOrRemoveAllMovies: (headerCategory: MainViewModel.HeaderCategory) -> Unit, val scrollToPosition: (position: Int) -> Unit, var stickyHeadersEnabled: Triple<Boolean, Boolean, Boolean>, var dividersEnabled: MainViewModel.DividersEnabled, val onActorsOrientationChanged: (isActorsOrientationHorizontal: Boolean) -> Unit, val isActorsOrientationHorizontal: () -> Boolean, val isDividerFeatureEnabled: () -> Boolean) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), LinearDividersListener, LinearStickyHeadersListener {
 
     var items: List<Any> = emptyList()
 
@@ -260,7 +260,10 @@ class DemoAdapter(context: Context, val addOrRemove: (movie: Movie) -> Unit, val
                         is MainViewModel.MovieState.Favorite -> setImageDrawable(ContextCompat.getDrawable(itemView.context, R.drawable.remove_circle_outline))
                     }
                     setOnClickListener {
-                        addOrRemove.invoke(movieState.movie())
+                        when(movieState){
+                            is MainViewModel.MovieState.Default -> addMovie.invoke(movieState.movie())
+                            is MainViewModel.MovieState.Favorite -> removeMovie.invoke(movieState.movie())
+                        }
                     }
                 }
             }

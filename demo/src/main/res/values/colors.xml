@@ -6,5 +6,20 @@
     <color name="colorHeaderActors">@android:color/holo_blue_light</color>
     <color name="colorHeaderFavorites">@android:color/holo_red_light</color>
     <color name="colorHeaderMovies">@android:color/holo_green_light</color>
-    <color name="colorGreyBackgroundLight">#FBFBFB</color>
+
+    <color name="background_app">#FBFBFB</color>
+    <color name="background_app_inverse">#040404</color>
+    <color name="white_black">#FFFFFF</color>
+    <color name="white_black_inverse">#000000</color>
+    <color name="colorDividerGrey">#979797</color>
+    <color name="background_overlay_background_8_percent">@android:color/white</color>
+    <color name="background_overlay_background_12_percent">@android:color/white</color>
+    <color name="background_overlay_background_16_percent">@android:color/white</color>
+    <color name="text_overlay_background_92_percent">@android:color/black</color>
+    <color name="text_overlay_background_88_percent">@android:color/black</color>
+    <color name="text_overlay_background_84_percent">@android:color/black</color>
+    <color name="text_light_on_dark">#EBFFFFFF</color>
+    <color name="text_light_on_dark_disabled">#61FFFFFF</color>
+    <color name="textColor">@android:color/black</color>
+
 </resources>

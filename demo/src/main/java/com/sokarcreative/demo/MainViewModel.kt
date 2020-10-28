@@ -9,6 +9,7 @@ import com.sokarcreative.demo.models.Category
 import com.sokarcreative.demo.models.Header
 import com.sokarcreative.demo.models.Movie
 import com.zhuinden.livedatacombinetuplekt.combineTuple
+import java.lang.IllegalStateException
 
 class MainViewModel : ViewModel() {
 
@@ -78,12 +79,18 @@ class MainViewModel : ViewModel() {
 
     fun getItemsLiveData(): LiveData<List<Any>> = itemsLiveData
 
-    fun addOrRemove(movie: Movie) {
+    fun addMovie(movie: Movie) {
+        favoritesLiveData.value = favoritesLiveData.value!!.toMutableSet().apply {
+            if (!contains(movie)) {
+                add(movie)
+            }
+        }
+    }
+
+    fun removeMovie(movie: Movie) {
         favoritesLiveData.value = favoritesLiveData.value!!.toMutableSet().apply {
             if (contains(movie)) {
                 remove(movie)
-            } else {
-                add(movie)
             }
         }
     }
@@ -100,6 +107,7 @@ class MainViewModel : ViewModel() {
                     addAll(movies.filter { it.category == headerCategory.category })
                 }
             }
+            else -> throw IllegalStateException()
         }
     }
 

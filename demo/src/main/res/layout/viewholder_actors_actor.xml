@@ -15,7 +15,7 @@
         android:ellipsize="end"
         android:gravity="bottom|end"
         android:lines="1"
-        android:textColor="@android:color/white"
+        android:textColor="?android:textColorPrimary"
         android:textSize="15sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"

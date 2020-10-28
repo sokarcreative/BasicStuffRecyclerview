@@ -4,7 +4,7 @@
         android:left="-6dp"
         android:right="-6dp">
         <shape>
-            <solid android:color="@color/colorGreyBackgroundLight" />
+            <solid android:color="@color/background_app" />
             <corners
                 android:bottomLeftRadius="30dp"
                 android:bottomRightRadius="30dp" />
@@ -12,7 +12,7 @@
     </item>
     <item>
         <shape>
-            <solid android:color="@color/colorGreyBackgroundLight" />
+            <solid android:color="@color/background_app" />
             <corners
                 android:bottomLeftRadius="12dp"
                 android:bottomRightRadius="12dp" />

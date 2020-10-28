@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/colorGreyBackgroundLight">
+    android:background="@color/background_app">
 
     <TextView
         android:id="@+id/textViewTitle"
@@ -11,8 +11,8 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="12dp"
         android:layout_marginVertical="12dp"
-        android:gravity="center_vertical"
         android:drawablePadding="12dp"
+        android:gravity="center_vertical"
         android:paddingHorizontal="12dp"
         android:paddingVertical="@dimen/common_vertical_space"
         app:layout_constraintEnd_toStartOf="@+id/switchOrientation"
@@ -21,12 +21,13 @@
 
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/switchOrientation"
-        android:text="Display horizontal"
-        android:textSize="12sp"
-        android:gravity="center_vertical"
-        android:layout_marginEnd="12dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="12dp"
+        android:gravity="center_vertical"
+        android:text="Display horizontal"
+        android:textColor="?android:textColor"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@+id/textViewTitle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/textViewTitle" />

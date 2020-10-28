@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">@color/background_overlay_background_16_percent</color>
+    <color name="colorPrimaryDark">@android:color/black</color>
+    <color name="colorAccent">#BB86FC</color>
+    <color name="colorHeaderActors">@android:color/holo_blue_dark</color>
+    <color name="colorHeaderFavorites">@android:color/holo_orange_dark</color>
+    <color name="colorHeaderMovies">@android:color/holo_green_dark</color>
+    <color name="background_app">#040404</color>
+    <color name="background_app_inverse">#FBFBFB</color>
+    <color name="white_black">#000000</color>
+    <color name="white_black_inverse">#FFFFFF</color>
+    <color name="colorDividerGrey">#686868</color>
+    <color name="background_overlay_background_8_percent">#14ffffff</color>
+    <color name="background_overlay_background_12_percent">#1fffffff</color>
+    <color name="background_overlay_background_16_percent">#29ffffff</color>
+    <color name="text_light_on_dark">#EBFFFFFF</color>
+    <color name="text_light_on_dark_disabled">#61FFFFFF</color>
+    <color name="textColor">#DEFFFFFF</color>
+</resources>

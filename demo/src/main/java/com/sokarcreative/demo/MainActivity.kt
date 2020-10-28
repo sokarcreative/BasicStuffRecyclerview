@@ -118,7 +118,8 @@ class MainActivity : AppCompatActivity() {
 
         recyclerView.adapter = DemoAdapter(
                 context = this,
-                addOrRemove = mainViewModel::addOrRemove,
+                addMovie = mainViewModel::addMovie,
+                removeMovie = mainViewModel::removeMovie,
                 addOrRemoveAllMovies = mainViewModel::addOrRemoveAllMovies,
                 scrollToPosition = { position ->
                     recyclerView.scrollToPosition(position)
