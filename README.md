@@ -1,9 +1,5 @@
 BasicStuffRecyclerview (> 0.3.3)
 ============
-Because on every project I need my own library (relevant library to me) and I'm bored because it was'nt designed the way it should be, so I decided to finally maintain it. Sry for people using it before but breaking changes are mandatory :/
-
-This library is in active development, a stable release is coming soon.
-============
 
 An Android library allowing to add custom dividers between ViewHolders from different viewTypes. Moreover, you can add (custom or not) sticky headers depending on viewTypes. 
 
@@ -99,8 +95,6 @@ public void onStickyViewClick(@NotNull RecyclerView parent, int position) {
 ```
 
 BasicStuffRecyclerview (<= 0.3.3)
-============
-This library will be no longer maintained. I made this library quickly to learn Kotlin and at this time I think this library is not built the way it should be. I'm not using this library anymore (only when maintaining old projects). To be honest features like "Dividers", "Sticky headers" and "Drag and drop" should be seperate interfaces and not an (oven-all) abstract class extending RecyclerView.Adapter. There are other existing libraries that are much more complete and flexible than this one.
 ============
 
 An Android library allowing to add custom dividers between ViewHolders from different viewTypes. Moreover, you can add (custom or not) sticky headers depending on viewTypes. 
