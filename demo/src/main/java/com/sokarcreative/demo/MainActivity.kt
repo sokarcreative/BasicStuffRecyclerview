@@ -17,19 +17,21 @@ import com.sokarcreative.basicstuffrecyclerview.divider.LinearDividersListener
 import com.sokarcreative.basicstuffrecyclerview.divider.LinearItemDecoration
 import com.sokarcreative.basicstuffrecyclerview.stickyheader.LinearStickyHeadersListener
 import com.sokarcreative.basicstuffrecyclerview.stickyheader.StickyHeaderLinearItemDecoration
-import kotlinx.android.synthetic.main.activity_main.*
+import com.sokarcreative.demo.databinding.ActivityMainBinding
 
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var mainViewModel: MainViewModel
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        with(navigationView.menu) {
+        with(binding.navigationView.menu) {
             val isDividerFeatureEnabled = mainViewModel.isDividerFeatureEnabledLiveData().value!!
             with(findItem(R.id.blankMenu)){
                 isVisible = isDividerFeatureEnabled
@@ -38,14 +40,14 @@ class MainActivity : AppCompatActivity() {
                 isChecked = isDividerFeatureEnabled
                 setOnCheckedChangeListener { _, isChecked ->
                     findItem(R.id.menuDividers).isVisible = isChecked
-                    navigationView.menu.findItem(R.id.blankMenu).isVisible = isChecked
+                    binding.navigationView.menu.findItem(R.id.blankMenu).isVisible = isChecked
                     mainViewModel.setIsDividerFeatureEnabled(isChecked)
                 }
             }
             with(findItem(R.id.menuDividers)) {
                 isVisible = isDividerFeatureEnabled
                 val onCheckedChangeListener = CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
-                    with(navigationView.menu.findItem(R.id.menuDividers).subMenu) {
+                    with(binding.navigationView.menu.findItem(R.id.menuDividers).subMenu) {
                         val isFirstLastDecorationEnabled = findItem(R.id.firstLast).actionView.findViewById<Switch>(R.id.switchEnable).isChecked
                         val isFirstDividerDecorationEnabled = findItem(R.id.beforeFirst).actionView.findViewById<Switch>(R.id.switchEnable).isChecked
                         val isDividerDecorationEnabled = findItem(R.id.between).actionView.findViewById<Switch>(R.id.switchEnable).isChecked
@@ -82,7 +84,7 @@ class MainActivity : AppCompatActivity() {
             with(findItem(R.id.menuStickyHeader)) {
                 isVisible = isStickyHeaderFeatureEnabled
                 val onCheckedChangeListener = CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
-                    with(navigationView.menu.findItem(R.id.menuStickyHeader).subMenu) {
+                    with(binding.navigationView.menu.findItem(R.id.menuStickyHeader).subMenu) {
                         val isHeaderEnabled = findItem(R.id.headerStickyHeader).actionView.findViewById<Switch>(R.id.switchEnable).isChecked
                         val isCategoryEnabled = findItem(R.id.categoryStickyHeader).actionView.findViewById<Switch>(R.id.switchEnable).isChecked
                         val isMovieEnabled = findItem(R.id.movieStickyHeader).actionView.findViewById<Switch>(R.id.switchEnable).isChecked
@@ -112,17 +114,17 @@ class MainActivity : AppCompatActivity() {
             })
         }
 
-        drawerLayout.setOnClickListener {
-            drawerLayout.openDrawer(drawerLayout)
+        binding.drawerLayout.setOnClickListener {
+            binding.drawerLayout.openDrawer(binding.drawerLayout)
         }
 
-        recyclerView.adapter = DemoAdapter(
+        binding.recyclerView.adapter = DemoAdapter(
                 context = this,
                 addMovie = mainViewModel::addMovie,
                 removeMovie = mainViewModel::removeMovie,
                 addOrRemoveAllMovies = mainViewModel::addOrRemoveAllMovies,
                 scrollToPosition = { position ->
-                    recyclerView.scrollToPosition(position)
+                    binding.recyclerView.scrollToPosition(position)
                 },
                 stickyHeadersEnabled = mainViewModel.getStickyHeadersEnabledLiveData().value!!,
                 dividersEnabled = mainViewModel.getDividersEnabledLiveData().value!!,
@@ -137,50 +139,50 @@ class MainActivity : AppCompatActivity() {
                 }
         )
 
-        recyclerView.itemAnimator.takeIf { it is SimpleItemAnimator }?.let {
+        binding.recyclerView.itemAnimator.takeIf { it is SimpleItemAnimator }?.let {
             (it as SimpleItemAnimator).supportsChangeAnimations = false
         }
 
         mainViewModel.getItemsLiveData().observe(this, Observer { items ->
-            (recyclerView.adapter as DemoAdapter).refresh(items)
-            recyclerView.invalidateItemDecorations()
+            (binding.recyclerView.adapter as DemoAdapter).refresh(items)
+            binding.recyclerView.invalidateItemDecorations()
         })
 
         mainViewModel.isDividerFeatureEnabledLiveData().observe(this, Observer { isDividerFeatureEnabled ->
-            recyclerView.removeAllLinearItemDecorations()
+            binding.recyclerView.removeAllLinearItemDecorations()
             if (isDividerFeatureEnabled) {
-                recyclerView.addLinearItemDecoration(LinearItemDecoration(recyclerView.adapter as LinearDividersListener))
+                binding.recyclerView.addLinearItemDecoration(LinearItemDecoration(binding.recyclerView.adapter as LinearDividersListener))
             }
-            (recyclerView.adapter as DemoAdapter).items.indexOfFirst { it is MainViewModel.Actors }.takeIf { it != -1 }?.let {
-                (recyclerView.findViewHolderForAdapterPosition(it) as? DemoAdapter.ActorsViewModel)?.notifyDividersChanged()
+            (binding.recyclerView.adapter as DemoAdapter).items.indexOfFirst { it is MainViewModel.Actors }.takeIf { it != -1 }?.let {
+                (binding.recyclerView.findViewHolderForAdapterPosition(it) as? DemoAdapter.ActorsViewModel)?.notifyDividersChanged()
             }
         })
 
         mainViewModel.isStickyHeaderFeatureEnabledLiveData().observe(this, Observer { isStickyHeaderFeatureEnabled ->
-            recyclerView.removeAllStickyHeaderItemDecorations()
+            binding.recyclerView.removeAllStickyHeaderItemDecorations()
             if (isStickyHeaderFeatureEnabled) {
-                recyclerView.addStickyHeaderItemDecoration(StickyHeaderLinearItemDecoration(recyclerView.adapter as LinearStickyHeadersListener))
+                binding.recyclerView.addStickyHeaderItemDecoration(StickyHeaderLinearItemDecoration(binding.recyclerView.adapter as LinearStickyHeadersListener))
             }
         })
 
         mainViewModel.getStickyHeadersEnabledLiveData().observe(this, Observer {
-            (recyclerView.adapter as DemoAdapter).stickyHeadersEnabled = it
-            recyclerView.invalidateItemDecorations()
+            (binding.recyclerView.adapter as DemoAdapter).stickyHeadersEnabled = it
+            binding.recyclerView.invalidateItemDecorations()
         })
 
         mainViewModel.getDividersEnabledLiveData().observe(this, Observer {
-            (recyclerView.adapter as DemoAdapter).dividersEnabled = it
-            (recyclerView.adapter as DemoAdapter).items.indexOfFirst { it is MainViewModel.Actors }.takeIf { it != -1 }?.let {
-                (recyclerView.findViewHolderForAdapterPosition(it) as? DemoAdapter.ActorsViewModel)?.notifyDividersChanged()
+            (binding.recyclerView.adapter as DemoAdapter).dividersEnabled = it
+            (binding.recyclerView.adapter as DemoAdapter).items.indexOfFirst { it is MainViewModel.Actors }.takeIf { it != -1 }?.let {
+                (binding.recyclerView.findViewHolderForAdapterPosition(it) as? DemoAdapter.ActorsViewModel)?.notifyDividersChanged()
             }
-            recyclerView.invalidateItemDecorations()
+            binding.recyclerView.invalidateItemDecorations()
         })
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                drawerLayout?.openDrawer(GravityCompat.START)
+                binding.drawerLayout.openDrawer(GravityCompat.START)
             }
         }
         return super.onOptionsItemSelected(item)

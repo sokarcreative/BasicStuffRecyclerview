@@ -19,6 +19,7 @@ import com.sokarcreative.demo.models.*
 import com.sokarcreative.basicstuffrecyclerview.divider.LinearDividersListener
 import com.sokarcreative.basicstuffrecyclerview.divider.LinearItemDecoration
 import com.sokarcreative.basicstuffrecyclerview.stickyheader.LinearStickyHeadersListener
+import com.sokarcreative.demo.databinding.*
 
 class DemoAdapter(context: Context, val addMovie: (movie: Movie) -> Unit, val removeMovie: (movie: Movie) -> Unit, val addOrRemoveAllMovies: (headerCategory: MainViewModel.HeaderCategory) -> Unit, val scrollToPosition: (position: Int) -> Unit, var stickyHeadersEnabled: Triple<Boolean, Boolean, Boolean>, var dividersEnabled: MainViewModel.DividersEnabled, val onActorsOrientationChanged: (isActorsOrientationHorizontal: Boolean) -> Unit, val isActorsOrientationHorizontal: () -> Boolean, val isDividerFeatureEnabled: () -> Boolean) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), LinearDividersListener, LinearStickyHeadersListener {
 
@@ -92,11 +93,11 @@ class DemoAdapter(context: Context, val addMovie: (movie: Movie) -> Unit, val re
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            VIEW_TYPE_HEADER -> HeaderViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.viewholder_demo_header, parent, false))
-            VIEW_TYPE_ACTORS -> ActorsViewModel(LayoutInflater.from(parent.context).inflate(R.layout.viewholder_demo_actors, parent, false))
-            VIEW_TYPE_ACTOR -> ActorViewModel(LayoutInflater.from(parent.context).inflate(R.layout.viewholder_demo_actor, parent, false))
-            VIEW_TYPE_CATEGORY -> CategoryViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.viewholder_demo_category, parent, false))
-            VIEW_TYPE_MOVIE -> MovieViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.viewholder_demo_movie, parent, false))
+            VIEW_TYPE_HEADER -> HeaderViewHolder(ViewholderDemoHeaderBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+            VIEW_TYPE_ACTORS -> ActorsViewModel(ViewholderDemoActorsBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+            VIEW_TYPE_ACTOR -> ActorViewModel(ViewholderDemoActorBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+            VIEW_TYPE_CATEGORY -> CategoryViewHolder(ViewholderDemoCategoryBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+            VIEW_TYPE_MOVIE -> MovieViewHolder(ViewholderDemoMovieBinding.inflate(LayoutInflater.from(parent.context), parent, false))
             else -> throw IllegalStateException()
         }
     }
@@ -144,126 +145,108 @@ class DemoAdapter(context: Context, val addMovie: (movie: Movie) -> Unit, val re
         diff.dispatchUpdatesTo(this)
     }
 
-    inner class HeaderViewHolder(v: View) : RecyclerView.ViewHolder(v) {
-        val textView = itemView.findViewById<TextView>(R.id.textViewTitle)
-        val switchOrientation = itemView.findViewById<SwitchCompat>(R.id.switchOrientation)
-
-        init {
-
-        }
+    inner class HeaderViewHolder(private val binding: ViewholderDemoHeaderBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(header: Header) {
             when (header) {
                 Header.ACTORS -> {
-                    switchOrientation.setOnCheckedChangeListener(null)
-                    switchOrientation.isChecked = isActorsOrientationHorizontal()
-                    switchOrientation.setOnCheckedChangeListener { buttonView, isChecked ->
+                    binding.switchOrientation.setOnCheckedChangeListener(null)
+                    binding.switchOrientation.isChecked = isActorsOrientationHorizontal()
+                    binding.switchOrientation.setOnCheckedChangeListener { buttonView, isChecked ->
                         onActorsOrientationChanged.invoke(isChecked)
                     }
-                    switchOrientation.visibility = View.VISIBLE
+                    binding.switchOrientation.visibility = View.VISIBLE
                 }
                 else -> {
-                    switchOrientation.visibility = View.INVISIBLE
+                    binding.switchOrientation.visibility = View.INVISIBLE
                 }
             }
 
-            textView.setCompoundDrawablesWithIntrinsicBounds(header.getDrawableRes(), 0, 0, 0)
-            textView.compoundDrawables[0].mutate().colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(ContextCompat.getColor(itemView.context, header.getColorRes()), BlendModeCompat.SRC_ATOP)
-            textView.text = itemView.context.getString(header.getNameStringRes())
+            with(binding.textViewTitle){
+                setCompoundDrawablesWithIntrinsicBounds(header.getDrawableRes(), 0, 0, 0)
+                compoundDrawables[0].mutate().colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(ContextCompat.getColor(itemView.context, header.getColorRes()), BlendModeCompat.SRC_ATOP)
+                text = itemView.context.getString(header.getNameStringRes())
+            }
         }
 
     }
 
-    inner class ActorsViewModel(v: View) : RecyclerView.ViewHolder(v) {
-        val recyclerView = itemView as RecyclerView
+    inner class ActorsViewModel(private val binding: ViewholderDemoActorsBinding) : RecyclerView.ViewHolder(binding.root) {
 
         init {
-            recyclerView.adapter = ActorsAdapter(itemView.context, dividersEnabled)
+            binding.root.adapter = ActorsAdapter(itemView.context, dividersEnabled)
         }
 
         fun bind(actors: MainViewModel.Actors) {
-            recyclerView.removeAllLinearItemDecorations()
+            binding.root.removeAllLinearItemDecorations()
             if(isDividerFeatureEnabled()){
-                recyclerView.addItemDecoration(LinearItemDecoration(recyclerView.adapter as LinearDividersListener))
+                binding.root.addItemDecoration(LinearItemDecoration(binding.root.adapter as LinearDividersListener))
             }
 
-            with(recyclerView.adapter as ActorsAdapter){
+            with(binding.root.adapter as ActorsAdapter){
                 this.dividersEnabled = this@DemoAdapter.dividersEnabled
                 refresh(actors.actors)
             }
 
-            recyclerView.invalidateItemDecorations()
+            binding.root.invalidateItemDecorations()
         }
 
         fun notifyDividersChanged(){
-            (recyclerView.adapter as ActorsAdapter).dividersEnabled = this@DemoAdapter.dividersEnabled
-            recyclerView.removeAllLinearItemDecorations()
+            (binding.root.adapter as ActorsAdapter).dividersEnabled = this@DemoAdapter.dividersEnabled
+            binding.root.removeAllLinearItemDecorations()
             if(isDividerFeatureEnabled()){
-                recyclerView.addItemDecoration(LinearItemDecoration(recyclerView.adapter as LinearDividersListener))
+                binding.root.addItemDecoration(LinearItemDecoration(binding.root.adapter as LinearDividersListener))
             }
         }
     }
 
-    class ActorViewModel(v: View) : RecyclerView.ViewHolder(v) {
-        val textView = itemView as TextView
+    class ActorViewModel(private val binding: ViewholderDemoActorBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(actor: Actor) {
-            textView.text = actor.name
+            binding.root.text = actor.name
         }
     }
 
-    inner class CategoryViewHolder(v: View) : RecyclerView.ViewHolder(v) {
-        val constraintLayout = itemView.findViewById<ConstraintLayout>(R.id.constraintLayout)
-        val textViewCategory = itemView.findViewById<TextView>(R.id.textViewCategory)
-        val imageViewFavorites = itemView.findViewById<ImageView>(R.id.imageViewFavorites)
-
+    inner class CategoryViewHolder(private val binding: ViewholderDemoCategoryBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(headerCategory: MainViewModel.HeaderCategory, position: Int) {
-            with(itemView) {
+            with(binding.root) {
                 setOnClickListener {
                     scrollToPosition.invoke(position)
                 }
-                with(constraintLayout) {
-                    (background.mutate() as GradientDrawable).setStroke(1, ContextCompat.getColor(itemView.context, headerCategory.header.getColorRes()))
-
-                    with(textViewCategory) {
-                        text = itemView.context.getString(headerCategory.category.titleStringRes())
-                    }
-
-                    with(imageViewFavorites) {
-                        when (headerCategory.header) {
-                            Header.MOVIES -> setImageDrawable(ContextCompat.getDrawable(itemView.context, R.drawable.favorite_border))
-                            Header.FAVORITES -> setImageDrawable(ContextCompat.getDrawable(itemView.context, R.drawable.remove_circle_outline))
-                            else -> throw java.lang.IllegalStateException("can't happen")
-                        }
-                        setOnClickListener {
-                            addOrRemoveAllMovies.invoke(headerCategory)
-                        }
-                    }
+            }
+            with(binding.constraintLayout) {
+                (background.mutate() as GradientDrawable).setStroke(1, ContextCompat.getColor(itemView.context, headerCategory.header.getColorRes()))
+            }
+            with(binding.textViewCategory) {
+                text = itemView.context.getString(headerCategory.category.titleStringRes())
+            }
+            with(binding.imageViewFavorites) {
+                when (headerCategory.header) {
+                    Header.MOVIES -> setImageDrawable(ContextCompat.getDrawable(itemView.context, R.drawable.favorite_border))
+                    Header.FAVORITES -> setImageDrawable(ContextCompat.getDrawable(itemView.context, R.drawable.remove_circle_outline))
+                    else -> throw java.lang.IllegalStateException("can't happen")
+                }
+                setOnClickListener {
+                    addOrRemoveAllMovies.invoke(headerCategory)
                 }
             }
         }
     }
 
-    inner class MovieViewHolder(v: View) : RecyclerView.ViewHolder(v) {
-        val constraintLayout = itemView.findViewById<ConstraintLayout>(R.id.constraintLayout)
-        val textViewTitle = itemView.findViewById<TextView>(R.id.textViewTitle)
-        val imageViewFavorite = itemView.findViewById<ImageView>(R.id.imageViewFavorite)
+    inner class MovieViewHolder(private val binding: ViewholderDemoMovieBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(movieState: MainViewModel.MovieState) {
-            with(constraintLayout) {
-                with(textViewTitle) {
-                    text = movieState.movie().name
+            with(binding.textViewTitle) {
+                text = movieState.movie().name
+            }
+            with(binding.imageViewFavorite) {
+                when (movieState) {
+                    is MainViewModel.MovieState.Default -> setImageDrawable(ContextCompat.getDrawable(itemView.context, R.drawable.favorite_border))
+                    is MainViewModel.MovieState.Favorite -> setImageDrawable(ContextCompat.getDrawable(itemView.context, R.drawable.remove_circle_outline))
                 }
-
-                with(imageViewFavorite) {
-                    when (movieState) {
-                        is MainViewModel.MovieState.Default -> setImageDrawable(ContextCompat.getDrawable(itemView.context, R.drawable.favorite_border))
-                        is MainViewModel.MovieState.Favorite -> setImageDrawable(ContextCompat.getDrawable(itemView.context, R.drawable.remove_circle_outline))
-                    }
-                    setOnClickListener {
-                        when(movieState){
-                            is MainViewModel.MovieState.Default -> addMovie.invoke(movieState.movie())
-                            is MainViewModel.MovieState.Favorite -> removeMovie.invoke(movieState.movie())
-                        }
+                setOnClickListener {
+                    when(movieState){
+                        is MainViewModel.MovieState.Default -> addMovie.invoke(movieState.movie())
+                        is MainViewModel.MovieState.Favorite -> removeMovie.invoke(movieState.movie())
                     }
                 }
             }

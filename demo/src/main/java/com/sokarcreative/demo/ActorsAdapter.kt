@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.sokarcreative.basicstuffrecyclerview.divider.LinearDividersListener
+import com.sokarcreative.demo.databinding.ViewholderActorsActorBinding
 import com.sokarcreative.demo.models.Actor
 
 class ActorsAdapter(context: Context, var dividersEnabled: MainViewModel.DividersEnabled): RecyclerView.Adapter<ActorsAdapter.ActorViewHolder>(), LinearDividersListener {
@@ -23,7 +24,7 @@ class ActorsAdapter(context: Context, var dividersEnabled: MainViewModel.Divider
     }
     override fun getItemCount(): Int = actors.size
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActorViewHolder = ActorViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.viewholder_actors_actor, parent, false))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActorViewHolder = ActorViewHolder(ViewholderActorsActorBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
     override fun onBindViewHolder(holder: ActorViewHolder, position: Int) {
         holder.bind(actors[position])
@@ -55,10 +56,9 @@ class ActorsAdapter(context: Context, var dividersEnabled: MainViewModel.Divider
         diff.dispatchUpdatesTo(this)
     }
 
-    class ActorViewHolder(v: View): RecyclerView.ViewHolder(v){
-        val textViewName = itemView.findViewById<TextView>(R.id.textViewName)
+    class ActorViewHolder(private val binding: ViewholderActorsActorBinding): RecyclerView.ViewHolder(binding.root){
         fun bind(actor: Actor){
-            textViewName.text = actor.name
+            binding.textViewName.text = actor.name
         }
     }
 }

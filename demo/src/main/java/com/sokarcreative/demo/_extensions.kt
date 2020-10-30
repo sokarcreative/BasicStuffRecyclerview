@@ -2,10 +2,9 @@ package com.sokarcreative.demo
 
 import android.content.Context
 import androidx.recyclerview.widget.RecyclerView
-import com.sokarcreative.basicstuffrecyclerview.divider.LinearDividersListener
 import com.sokarcreative.basicstuffrecyclerview.divider.LinearItemDecoration
 import com.sokarcreative.basicstuffrecyclerview.stickyheader.StickyHeaderLinearItemDecoration
-import kotlinx.android.synthetic.main.activity_main.*
+
 
 fun Context.convertDpToPixel(dp: Float): Int = (dp * (resources.displayMetrics.densityDpi / 160f)).toInt()
 
