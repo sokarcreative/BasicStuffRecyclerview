@@ -10,9 +10,9 @@
 
     <TextView
         android:id="@+id/textViewTitle"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
+        android:textAlignment="viewStart"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
         android:paddingHorizontal="@dimen/common_horizontal_space"
         android:paddingVertical="16dp"
         android:textAllCaps="true"
@@ -28,7 +28,7 @@
         android:paddingHorizontal="@dimen/common_horizontal_space"
         android:paddingVertical="@dimen/common_vertical_space"
         android:src="@drawable/favorite_border"
-        android:tint="@color/textColor"
+        app:tint="@color/textColor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

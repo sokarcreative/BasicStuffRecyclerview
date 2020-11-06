@@ -19,6 +19,7 @@ class ActorsAdapter(context: Context, var dividersEnabled: MainViewModel.Divider
     val drawableDividerFirstLast: Drawable = GradientDrawable().apply {
         setSize(context.resources.getDimension(R.dimen.common_horizontal_space).toInt(), 0)
     }
+
     val drawableDividerBetweenActors: Drawable = GradientDrawable().apply {
         setSize(context.convertDpToPixel(10f), 0)
     }

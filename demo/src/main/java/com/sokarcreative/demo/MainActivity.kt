@@ -2,10 +2,13 @@ package com.sokarcreative.demo
 
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
+import android.view.Gravity
 import android.view.MenuItem
 import android.widget.CompoundButton
-import android.widget.Switch
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
@@ -36,7 +39,7 @@ class MainActivity : AppCompatActivity() {
             with(findItem(R.id.blankMenu)){
                 isVisible = isDividerFeatureEnabled
             }
-            with(findItem(R.id.dividersState).actionView.findViewById<Switch>(R.id.switchEnable)) {
+            with(findItem(R.id.dividersState).actionView.findViewById<SwitchCompat>(R.id.switchEnable)) {
                 isChecked = isDividerFeatureEnabled
                 setOnCheckedChangeListener { _, isChecked ->
                     findItem(R.id.menuDividers).isVisible = isChecked
@@ -48,33 +51,33 @@ class MainActivity : AppCompatActivity() {
                 isVisible = isDividerFeatureEnabled
                 val onCheckedChangeListener = CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
                     with(binding.navigationView.menu.findItem(R.id.menuDividers).subMenu) {
-                        val isFirstLastDecorationEnabled = findItem(R.id.firstLast).actionView.findViewById<Switch>(R.id.switchEnable).isChecked
-                        val isFirstDividerDecorationEnabled = findItem(R.id.beforeFirst).actionView.findViewById<Switch>(R.id.switchEnable).isChecked
-                        val isDividerDecorationEnabled = findItem(R.id.between).actionView.findViewById<Switch>(R.id.switchEnable).isChecked
-                        val isLastDividerDecorationEnabled = findItem(R.id.afterLast).actionView.findViewById<Switch>(R.id.switchEnable).isChecked
+                        val isFirstLastDecorationEnabled = findItem(R.id.firstLast).actionView.findViewById<SwitchCompat>(R.id.switchEnable).isChecked
+                        val isFirstDividerDecorationEnabled = findItem(R.id.beforeFirst).actionView.findViewById<SwitchCompat>(R.id.switchEnable).isChecked
+                        val isDividerDecorationEnabled = findItem(R.id.between).actionView.findViewById<SwitchCompat>(R.id.switchEnable).isChecked
+                        val isLastDividerDecorationEnabled = findItem(R.id.afterLast).actionView.findViewById<SwitchCompat>(R.id.switchEnable).isChecked
                         mainViewModel.setDividersEnabled(MainViewModel.DividersEnabled(isFirstLastDecorationEnabled = isFirstLastDecorationEnabled, isFirstDividerDecorationEnabled = isFirstDividerDecorationEnabled, isDividerDecorationEnabled = isDividerDecorationEnabled, isLastDividerDecorationEnabled = isLastDividerDecorationEnabled))
                     }
                 }
                 val dividersEnabled = mainViewModel.getDividersEnabledLiveData().value!!
-                with(subMenu.findItem(R.id.firstLast).actionView.findViewById<Switch>(R.id.switchEnable)) {
+                with(subMenu.findItem(R.id.firstLast).actionView.findViewById<SwitchCompat>(R.id.switchEnable)) {
                     isChecked = dividersEnabled.isFirstLastDecorationEnabled
                     setOnCheckedChangeListener(onCheckedChangeListener)
                 }
-                with(subMenu.findItem(R.id.beforeFirst).actionView.findViewById<Switch>(R.id.switchEnable)) {
+                with(subMenu.findItem(R.id.beforeFirst).actionView.findViewById<SwitchCompat>(R.id.switchEnable)) {
                     isChecked = dividersEnabled.isFirstDividerDecorationEnabled
                     setOnCheckedChangeListener(onCheckedChangeListener)
                 }
-                with(subMenu.findItem(R.id.between).actionView.findViewById<Switch>(R.id.switchEnable)) {
+                with(subMenu.findItem(R.id.between).actionView.findViewById<SwitchCompat>(R.id.switchEnable)) {
                     isChecked = dividersEnabled.isDividerDecorationEnabled
                     setOnCheckedChangeListener(onCheckedChangeListener)
                 }
-                with(subMenu.findItem(R.id.afterLast).actionView.findViewById<Switch>(R.id.switchEnable)) {
+                with(subMenu.findItem(R.id.afterLast).actionView.findViewById<SwitchCompat>(R.id.switchEnable)) {
                     isChecked = dividersEnabled.isLastDividerDecorationEnabled
                     setOnCheckedChangeListener(onCheckedChangeListener)
                 }
             }
             val isStickyHeaderFeatureEnabled = mainViewModel.isStickyHeaderFeatureEnabledLiveData().value!!
-            with(findItem(R.id.stickyHeaderState).actionView.findViewById<Switch>(R.id.switchEnable)) {
+            with(findItem(R.id.stickyHeaderState).actionView.findViewById<SwitchCompat>(R.id.switchEnable)) {
                 isChecked = isStickyHeaderFeatureEnabled
                 setOnCheckedChangeListener { _, isChecked ->
                     mainViewModel.setIsStickyHeaderFeatureEnabledLiveData(isChecked)
@@ -85,22 +88,22 @@ class MainActivity : AppCompatActivity() {
                 isVisible = isStickyHeaderFeatureEnabled
                 val onCheckedChangeListener = CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
                     with(binding.navigationView.menu.findItem(R.id.menuStickyHeader).subMenu) {
-                        val isHeaderEnabled = findItem(R.id.headerStickyHeader).actionView.findViewById<Switch>(R.id.switchEnable).isChecked
-                        val isCategoryEnabled = findItem(R.id.categoryStickyHeader).actionView.findViewById<Switch>(R.id.switchEnable).isChecked
-                        val isMovieEnabled = findItem(R.id.movieStickyHeader).actionView.findViewById<Switch>(R.id.switchEnable).isChecked
+                        val isHeaderEnabled = findItem(R.id.headerStickyHeader).actionView.findViewById<SwitchCompat>(R.id.switchEnable).isChecked
+                        val isCategoryEnabled = findItem(R.id.categoryStickyHeader).actionView.findViewById<SwitchCompat>(R.id.switchEnable).isChecked
+                        val isMovieEnabled = findItem(R.id.movieStickyHeader).actionView.findViewById<SwitchCompat>(R.id.switchEnable).isChecked
                         mainViewModel.setStickyHeadersEnabled(Triple(isHeaderEnabled, isCategoryEnabled, isMovieEnabled))
                     }
                 }
                 val stickyHeadersEnabled = mainViewModel.getStickyHeadersEnabledLiveData().value!!
-                with(subMenu.findItem(R.id.headerStickyHeader).actionView.findViewById<Switch>(R.id.switchEnable)) {
+                with(subMenu.findItem(R.id.headerStickyHeader).actionView.findViewById<SwitchCompat>(R.id.switchEnable)) {
                     isChecked = stickyHeadersEnabled.first
                     setOnCheckedChangeListener(onCheckedChangeListener)
                 }
-                with(subMenu.findItem(R.id.categoryStickyHeader).actionView.findViewById<Switch>(R.id.switchEnable)) {
+                with(subMenu.findItem(R.id.categoryStickyHeader).actionView.findViewById<SwitchCompat>(R.id.switchEnable)) {
                     isChecked = stickyHeadersEnabled.second
                     setOnCheckedChangeListener(onCheckedChangeListener)
                 }
-                with(subMenu.findItem(R.id.movieStickyHeader).actionView.findViewById<Switch>(R.id.switchEnable)) {
+                with(subMenu.findItem(R.id.movieStickyHeader).actionView.findViewById<SwitchCompat>(R.id.switchEnable)) {
                     isChecked = stickyHeadersEnabled.third
                     setOnCheckedChangeListener(onCheckedChangeListener)
                 }
@@ -112,10 +115,6 @@ class MainActivity : AppCompatActivity() {
             it.setHomeAsUpIndicator(ContextCompat.getDrawable(this, R.drawable.ic_menu)!!.apply {
                 colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(Color.WHITE, BlendModeCompat.SRC_ATOP)
             })
-        }
-
-        binding.drawerLayout.setOnClickListener {
-            binding.drawerLayout.openDrawer(binding.drawerLayout)
         }
 
         binding.recyclerView.adapter = DemoAdapter(
@@ -182,7 +181,11 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                binding.drawerLayout.openDrawer(GravityCompat.START)
+                if(binding.drawerLayout.isDrawerOpen(GravityCompat.START)){
+                    binding.drawerLayout.closeDrawer(GravityCompat.START)
+                }else{
+                    binding.drawerLayout.openDrawer(GravityCompat.START)
+                }
             }
         }
         return super.onOptionsItemSelected(item)

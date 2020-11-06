@@ -12,7 +12,7 @@
         android:layout_marginHorizontal="12dp"
         android:layout_marginVertical="12dp"
         android:drawablePadding="12dp"
-        android:gravity="center_vertical"
+        android:textAlignment="viewStart"
         android:paddingHorizontal="12dp"
         android:paddingVertical="@dimen/common_vertical_space"
         app:layout_constraintEnd_toStartOf="@+id/switchOrientation"

@@ -1,13 +1,19 @@
 package com.sokarcreative.demo
 
 import android.content.Context
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.LayerDrawable
+import android.graphics.drawable.ShapeDrawable
+import android.text.TextUtils
+import android.util.LayoutDirection
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SwitchCompat
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
@@ -20,6 +26,7 @@ import com.sokarcreative.basicstuffrecyclerview.divider.LinearDividersListener
 import com.sokarcreative.basicstuffrecyclerview.divider.LinearItemDecoration
 import com.sokarcreative.basicstuffrecyclerview.stickyheader.LinearStickyHeadersListener
 import com.sokarcreative.demo.databinding.*
+import java.util.*
 
 class DemoAdapter(context: Context, val addMovie: (movie: Movie) -> Unit, val removeMovie: (movie: Movie) -> Unit, val addOrRemoveAllMovies: (headerCategory: MainViewModel.HeaderCategory) -> Unit, val scrollToPosition: (position: Int) -> Unit, var stickyHeadersEnabled: Triple<Boolean, Boolean, Boolean>, var dividersEnabled: MainViewModel.DividersEnabled, val onActorsOrientationChanged: (isActorsOrientationHorizontal: Boolean) -> Unit, val isActorsOrientationHorizontal: () -> Boolean, val isDividerFeatureEnabled: () -> Boolean) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), LinearDividersListener, LinearStickyHeadersListener {
 
@@ -49,7 +56,27 @@ class DemoAdapter(context: Context, val addMovie: (movie: Movie) -> Unit, val re
     val drawableMovieDivider: Drawable = GradientDrawable().apply {
         setSize(0, context.convertDpToPixel(8f))
     }
-    val drawableActorDivider: Drawable = ContextCompat.getDrawable(context, R.drawable.divider_between_actors)!!
+
+    private inline val Locale.layoutDirection: Int
+        @RequiresApi(17)
+        get() = TextUtils.getLayoutDirectionFromLocale(this)
+
+
+    val drawableActorDivider: Drawable = LayerDrawable(
+            arrayOf<Drawable>(
+                    GradientDrawable().apply { setSize(0, 1); setColor(ContextCompat.getColor(context, R.color.background_app)) },
+                    GradientDrawable().apply {
+                        setSize(0, 1); setColor(Color.parseColor("#979797"))
+                    }
+            )
+    ).apply {
+        if(Locale.getDefault().layoutDirection == LayoutDirection.LTR){
+            setLayerInset(1, context.convertDpToPixel(24f), 0,0,0)
+        }else{
+            setLayerInset(1, 0, 0,context.convertDpToPixel(24f),0)
+        }
+    }
+
     val drawableActorLastDivider: Drawable = ContextCompat.getDrawable(context, R.drawable.divider_last_actor)!!
 
     val drawableDividerBetweenHeaderAndActors: Drawable = GradientDrawable().apply {
@@ -162,9 +189,9 @@ class DemoAdapter(context: Context, val addMovie: (movie: Movie) -> Unit, val re
                 }
             }
 
-            with(binding.textViewTitle){
-                setCompoundDrawablesWithIntrinsicBounds(header.getDrawableRes(), 0, 0, 0)
-                compoundDrawables[0].mutate().colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(ContextCompat.getColor(itemView.context, header.getColorRes()), BlendModeCompat.SRC_ATOP)
+            with(binding.textViewTitle) {
+                setCompoundDrawablesRelativeWithIntrinsicBounds(header.getDrawableRes(), 0, 0, 0)
+                compoundDrawablesRelative[0].mutate().colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(ContextCompat.getColor(itemView.context, header.getColorRes()), BlendModeCompat.SRC_ATOP)
                 text = itemView.context.getString(header.getNameStringRes())
             }
         }
@@ -179,11 +206,11 @@ class DemoAdapter(context: Context, val addMovie: (movie: Movie) -> Unit, val re
 
         fun bind(actors: MainViewModel.Actors) {
             binding.root.removeAllLinearItemDecorations()
-            if(isDividerFeatureEnabled()){
+            if (isDividerFeatureEnabled()) {
                 binding.root.addItemDecoration(LinearItemDecoration(binding.root.adapter as LinearDividersListener))
             }
 
-            with(binding.root.adapter as ActorsAdapter){
+            with(binding.root.adapter as ActorsAdapter) {
                 this.dividersEnabled = this@DemoAdapter.dividersEnabled
                 refresh(actors.actors)
             }
@@ -191,10 +218,10 @@ class DemoAdapter(context: Context, val addMovie: (movie: Movie) -> Unit, val re
             binding.root.invalidateItemDecorations()
         }
 
-        fun notifyDividersChanged(){
+        fun notifyDividersChanged() {
             (binding.root.adapter as ActorsAdapter).dividersEnabled = this@DemoAdapter.dividersEnabled
             binding.root.removeAllLinearItemDecorations()
-            if(isDividerFeatureEnabled()){
+            if (isDividerFeatureEnabled()) {
                 binding.root.addItemDecoration(LinearItemDecoration(binding.root.adapter as LinearDividersListener))
             }
         }
@@ -244,7 +271,7 @@ class DemoAdapter(context: Context, val addMovie: (movie: Movie) -> Unit, val re
                     is MainViewModel.MovieState.Favorite -> setImageDrawable(ContextCompat.getDrawable(itemView.context, R.drawable.remove_circle_outline))
                 }
                 setOnClickListener {
-                    when(movieState){
+                    when (movieState) {
                         is MainViewModel.MovieState.Default -> addMovie.invoke(movieState.movie())
                         is MainViewModel.MovieState.Favorite -> removeMovie.invoke(movieState.movie())
                     }

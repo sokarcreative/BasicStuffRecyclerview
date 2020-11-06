@@ -12,11 +12,11 @@
         <menu>
             <item
                 android:id="@+id/firstLast"
-                android:title="First / Last"
+                android:title="Start / End"
                 app:actionLayout="@layout/switch_item" />
             <item
                 android:id="@+id/beforeFirst"
-                android:title="Before first of same"
+                android:title="Start of same"
                 app:actionLayout="@layout/switch_item" />
             <item
                 android:id="@+id/between"
@@ -24,16 +24,15 @@
                 app:actionLayout="@layout/switch_item" />
             <item
                 android:id="@+id/afterLast"
-                android:title="After last of same"
+                android:title="End of same"
                 app:actionLayout="@layout/switch_item" />
         </menu>
     </item>
-    <item android:id="@+id/blankMenu"/>
+    <item android:id="@+id/blankMenu" />
     <item
         android:id="@+id/stickyHeaderState"
         android:title="Enable sticky header"
-        app:actionLayout="@layout/switch_item"/>
-
+        app:actionLayout="@layout/switch_item" />
     <item
         android:id="@+id/menuStickyHeader"
         android:title="Sticky Header">

@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="common_vertical_space">8dp</dimen>
-    <dimen name="common_vertical_space_multiplied_by_2">16dp</dimen>
-    <dimen name="common_vertical_space_divided_by_2">4dp</dimen>
     <dimen name="common_horizontal_space">16dp</dimen>
-    <dimen name="common_horizontal_space_multiplied_by_2">32dp</dimen>
-    <dimen name="common_horizontal_space_divided_by_2">8dp</dimen>
     <dimen name="space_between_movies">8dp</dimen>
 </resources>
