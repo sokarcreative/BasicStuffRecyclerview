@@ -3,6 +3,7 @@ package com.sokarcreative.basicstuffrecyclerview.divider
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
+import android.util.LayoutDirection
 import android.view.View
 import androidx.core.view.*
 import androidx.recyclerview.widget.RecyclerView
@@ -44,7 +45,7 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
         val adapter = parent.adapter ?: return
 
         canvas.save()
-        canvas.clipRect(parent.paddingLeft, parent.paddingTop, parent.width, parent.height)
+        canvas.clipRect(parent.paddingStart, parent.paddingTop, parent.width, parent.height)
 
         if (mOrientation == androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL) {
             drawVerticalDividers(canvas, parent, adapter)
@@ -78,7 +79,11 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
 
                 getNextDecoration(adapter, position)?.let {
                     if (mOrientation == androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL) {
-                        outRect.right = it.intrinsicWidth
+                        if(parent.layoutDirection == LayoutDirection.LTR){
+                            outRect.right = it.intrinsicWidth
+                        }else{
+                            outRect.left = it.intrinsicWidth
+                        }
                     } else if (mOrientation == androidx.recyclerview.widget.LinearLayoutManager.VERTICAL) {
                         outRect.bottom = it.intrinsicHeight
                     }
@@ -86,8 +91,11 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
 
                 getPreviousDecoration(adapter, position)?.let {
                     if (mOrientation == androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL) {
-                        outRect.left = it.intrinsicWidth
-
+                        if(parent.layoutDirection == LayoutDirection.LTR){
+                            outRect.left = it.intrinsicWidth
+                        }else{
+                            outRect.right = it.intrinsicWidth
+                        }
                     } else if (mOrientation == androidx.recyclerview.widget.LinearLayoutManager.VERTICAL) {
                         outRect.top = it.intrinsicHeight
                     }
@@ -125,9 +133,9 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
                 }
                 getNextDecoration(adapter, position)?.let {
                     it.setBounds(
-                            view.right + view.marginRight,
+                            view.right + view.marginEnd,
                             0,
-                            view.right + view.marginRight + it.intrinsicWidth,
+                            view.right + view.marginEnd + it.intrinsicWidth,
                             view.bottom + view.marginBottom
                     )
                     it.draw(canvas)
