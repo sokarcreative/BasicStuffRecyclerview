@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.sokarcreative.basicstuffrecyclerview.Decoration
 import com.sokarcreative.basicstuffrecyclerview.divider.LinearDividersListener
 import com.sokarcreative.demo.databinding.ViewholderActorsActorBinding
 import com.sokarcreative.demo.models.Actor
@@ -16,13 +17,9 @@ import com.sokarcreative.demo.models.Actor
 class ActorsAdapter(context: Context, var dividersEnabled: MainViewModel.DividersEnabled): RecyclerView.Adapter<ActorsAdapter.ActorViewHolder>(), LinearDividersListener {
     var actors = emptyList<Actor>()
 
-    val drawableDividerFirstLast: Drawable = GradientDrawable().apply {
-        setSize(context.resources.getDimension(R.dimen.common_horizontal_space).toInt(), 0)
-    }
+    val decorationFirstLast = Decoration.Space(context.resources.getDimension(R.dimen.common_horizontal_space).toInt())
+    val decorationDivider = Decoration.Space(context.convertDpToPixel(10f))
 
-    val drawableDividerBetweenActors: Drawable = GradientDrawable().apply {
-        setSize(context.convertDpToPixel(10f), 0)
-    }
     override fun getItemCount(): Int = actors.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActorViewHolder = ActorViewHolder(ViewholderActorsActorBinding.inflate(LayoutInflater.from(parent.context), parent, false))
@@ -31,9 +28,9 @@ class ActorsAdapter(context: Context, var dividersEnabled: MainViewModel.Divider
         holder.bind(actors[position])
     }
 
-    override fun getDividerDecoration(viewType: Int): Drawable? = if(!dividersEnabled.isDividerDecorationEnabled) null else drawableDividerBetweenActors
-    override fun getFirstDecoration(viewType: Int): Drawable? = if(!dividersEnabled.isFirstLastDecorationEnabled) null else drawableDividerFirstLast
-    override fun getLastDecoration(viewType: Int): Drawable? = if(!dividersEnabled.isFirstLastDecorationEnabled) null else drawableDividerFirstLast
+    override fun getDividerDecoration(viewType: Int): Decoration? = if(!dividersEnabled.isDividerDecorationEnabled) null else decorationDivider
+    override fun getFirstDecoration(viewType: Int): Decoration? = if(!dividersEnabled.isFirstLastDecorationEnabled) null else decorationFirstLast
+    override fun getLastDecoration(viewType: Int): Decoration? = if(!dividersEnabled.isFirstLastDecorationEnabled) null else decorationFirstLast
 
     fun refresh(actors: Set<Actor>) {
         val oldItems = this.actors

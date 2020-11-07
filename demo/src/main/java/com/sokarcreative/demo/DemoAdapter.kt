@@ -5,22 +5,20 @@ import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
-import android.graphics.drawable.ShapeDrawable
 import android.text.TextUtils
 import android.util.LayoutDirection
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SwitchCompat
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.sokarcreative.basicstuffrecyclerview.Decoration
 import com.sokarcreative.demo.models.*
 import com.sokarcreative.basicstuffrecyclerview.divider.LinearDividersListener
 import com.sokarcreative.basicstuffrecyclerview.divider.LinearItemDecoration
@@ -50,73 +48,67 @@ class DemoAdapter(context: Context, val addMovie: (movie: Movie) -> Unit, val re
         else -> false
     }
 
-    val drawableDividerFirstLast: Drawable = GradientDrawable().apply {
-        setSize(0, context.convertDpToPixel(12f))
-    }
-    val drawableMovieDivider: Drawable = GradientDrawable().apply {
-        setSize(0, context.convertDpToPixel(8f))
-    }
+    val firstLastDecoration: Decoration = Decoration.Space(context.convertDpToPixel(12f))
+    val decorationBetwenMovies: Decoration = Decoration.Space(context.convertDpToPixel(8f))
 
     private inline val Locale.layoutDirection: Int
         @RequiresApi(17)
         get() = TextUtils.getLayoutDirectionFromLocale(this)
 
-
-    val drawableActorDivider: Drawable = LayerDrawable(
+    val decorationBetweenActors: Decoration = Decoration.Drawable(LayerDrawable(
             arrayOf<Drawable>(
-                    GradientDrawable().apply { setSize(0, 1); setColor(ContextCompat.getColor(context, R.color.background_app)) },
                     GradientDrawable().apply {
-                        setSize(0, 1); setColor(Color.parseColor("#979797"))
+                        setSize(0, 1)
+                        setColor(ContextCompat.getColor(context, R.color.background_app))
+                    },
+                    GradientDrawable().apply {
+                        setSize(0, 1)
+                        setColor(ContextCompat.getColor(context, R.color.colorDividerGrey))
                     }
             )
     ).apply {
-        if(Locale.getDefault().layoutDirection == LayoutDirection.LTR){
-            setLayerInset(1, context.convertDpToPixel(24f), 0,0,0)
-        }else{
-            setLayerInset(1, 0, 0,context.convertDpToPixel(24f),0)
+        if (Locale.getDefault().layoutDirection == LayoutDirection.LTR) {
+            setLayerInset(1, context.convertDpToPixel(24f), 0, 0, 0)
+        } else {
+            setLayerInset(1, 0, 0, context.convertDpToPixel(24f), 0)
         }
-    }
+    })
 
-    val drawableActorLastDivider: Drawable = ContextCompat.getDrawable(context, R.drawable.divider_last_actor)!!
 
-    val drawableDividerBetweenHeaderAndActors: Drawable = GradientDrawable().apply {
-        setSize(0, context.convertDpToPixel(24f))
-    }
-    val drawableDividerBetweenMovieAndCategory: Drawable = GradientDrawable().apply {
-        setSize(0, context.convertDpToPixel(24f))
-    }
-    val drawableDividerBetweenMovieAndheader: Drawable = GradientDrawable().apply {
-        setSize(0, context.convertDpToPixel(12f))
-    }
+    val firstDecorationBetweenHeaderAndActors: Decoration = Decoration.Space(context.convertDpToPixel(24f))
+    val firstDecorationBetweenMovieAndCategory: Decoration = Decoration.Space(context.convertDpToPixel(24f))
+    val firstDecorationBetweenMovieAndheader: Decoration = Decoration.Space(context.convertDpToPixel(12f))
 
-    override fun getFirstDecoration(viewType: Int): Drawable? = if (!dividersEnabled.isFirstLastDecorationEnabled) null else drawableDividerFirstLast
+    val lastDecorationActor: Decoration = Decoration.Drawable(ContextCompat.getDrawable(context, R.drawable.divider_last_actor)!!)
 
-    override fun getFirstDividerDecoration(viewType: Int, previousViewType: Int): Drawable? = if (!dividersEnabled.isFirstDividerDecorationEnabled) null else {
+    override fun getFirstDecoration(viewType: Int): Decoration? = if (!dividersEnabled.isFirstLastDecorationEnabled) null else firstLastDecoration
+
+    override fun getFirstDividerDecoration(viewType: Int, previousViewType: Int): Decoration? = if (!dividersEnabled.isFirstDividerDecorationEnabled) null else {
         when {
-            previousViewType == VIEW_TYPE_MOVIE && viewType == VIEW_TYPE_CATEGORY -> drawableDividerBetweenMovieAndCategory
-            previousViewType == VIEW_TYPE_MOVIE && viewType == VIEW_TYPE_HEADER -> drawableDividerBetweenMovieAndheader
-            previousViewType == VIEW_TYPE_ACTOR -> drawableDividerFirstLast
-            viewType == VIEW_TYPE_ACTORS -> drawableDividerBetweenHeaderAndActors
+            previousViewType == VIEW_TYPE_ACTOR -> firstLastDecoration
+            previousViewType == VIEW_TYPE_MOVIE && viewType == VIEW_TYPE_CATEGORY -> firstDecorationBetweenMovieAndCategory
+            previousViewType == VIEW_TYPE_MOVIE && viewType == VIEW_TYPE_HEADER -> firstDecorationBetweenMovieAndheader
+            viewType == VIEW_TYPE_ACTORS -> firstDecorationBetweenHeaderAndActors
             else -> null
         }
     }
 
-    override fun getDividerDecoration(viewType: Int): Drawable? = if (!dividersEnabled.isDividerDecorationEnabled) null else {
+    override fun getDividerDecoration(viewType: Int): Decoration? = if (!dividersEnabled.isDividerDecorationEnabled) null else {
         when (viewType) {
-            VIEW_TYPE_MOVIE -> drawableMovieDivider
-            VIEW_TYPE_ACTOR -> drawableActorDivider
+            VIEW_TYPE_ACTOR -> decorationBetweenActors
+            VIEW_TYPE_MOVIE -> decorationBetwenMovies
             else -> null
         }
     }
 
-    override fun getLastDividerDecoration(viewType: Int, nextViewType: Int): Drawable? = if (!dividersEnabled.isLastDividerDecorationEnabled) null else when {
-        viewType == VIEW_TYPE_ACTOR -> drawableActorLastDivider
-        viewType == VIEW_TYPE_HEADER && nextViewType == VIEW_TYPE_CATEGORY -> drawableDividerFirstLast
-        viewType == VIEW_TYPE_ACTORS -> drawableDividerFirstLast
+    override fun getLastDividerDecoration(viewType: Int, nextViewType: Int): Decoration? = if (!dividersEnabled.isLastDividerDecorationEnabled) null else when {
+        viewType == VIEW_TYPE_ACTOR -> lastDecorationActor
+        viewType == VIEW_TYPE_HEADER && nextViewType == VIEW_TYPE_CATEGORY -> firstLastDecoration
+        viewType == VIEW_TYPE_ACTORS -> firstLastDecoration
         else -> null
     }
 
-    override fun getLastDecoration(viewType: Int): Drawable? = if (!dividersEnabled.isFirstLastDecorationEnabled) null else drawableDividerFirstLast
+    override fun getLastDecoration(viewType: Int): Decoration? = if (!dividersEnabled.isFirstLastDecorationEnabled) null else firstLastDecoration
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
