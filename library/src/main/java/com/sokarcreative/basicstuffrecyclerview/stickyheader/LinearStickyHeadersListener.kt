@@ -12,9 +12,7 @@ interface LinearStickyHeadersListener {
     /**
      * @return true if the [viewType] should be a sticky header.
      */
-    fun isStickyHeader(viewType: Int): Boolean {
-        return false
-    }
+    fun isStickyHeader(viewType: Int): Boolean = false
 
     /**
      * Create and bind a sticky view of the [position] and add to [parent] viewGroup. You can either create a new View manually or inflate it from an XML layout file.
@@ -24,7 +22,9 @@ interface LinearStickyHeadersListener {
         parent.adapter?.let { adapter ->
             val holder: RecyclerView.ViewHolder = adapter.onCreateViewHolder(parent, adapter.getItemViewType(position))
             adapter.onBindViewHolder(holder, position)
-            return holder.itemView
+            return holder.itemView.apply {
+                layoutDirection = parent.layoutDirection
+            }
         } ?: throw IllegalStateException("no adapter")
     }
 

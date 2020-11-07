@@ -1,6 +1,8 @@
 package com.sokarcreative.basicstuffrecyclerview.stickyheader
 
 import android.graphics.Canvas
+import android.util.LayoutDirection
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -101,7 +103,7 @@ class StickyHeaderLinearItemDecoration(val linearStickyHeadersListener: LinearSt
     private fun generateNewStickyHeader(parent: RecyclerView, position: Int): StickyHeaderInfo {
         val stickyView = linearStickyHeadersListener.onCreateAndBindStickyView(parent, position)
 
-        val widthSpec = View.MeasureSpec.makeMeasureSpec(parent.width, View.MeasureSpec.EXACTLY) - stickyView.marginStart - stickyView.marginEnd - parent.paddingLeft - parent.paddingRight
+        val widthSpec = View.MeasureSpec.makeMeasureSpec(parent.width, View.MeasureSpec.EXACTLY) - stickyView.marginStart - stickyView.marginEnd - parent.paddingStart - parent.paddingEnd
         val heightSpec = View.MeasureSpec.makeMeasureSpec(parent.height, View.MeasureSpec.UNSPECIFIED)
         mCurrentWidthSpec = widthSpec
 
@@ -129,8 +131,10 @@ class StickyHeaderLinearItemDecoration(val linearStickyHeadersListener: LinearSt
          */
         internal fun drawStickyView(canvas: Canvas, parent: RecyclerView, stickyHeaderInfo: StickyHeaderInfo, nextStickyHeader: View?) {
             canvas.save()
-            canvas.translate(parent.paddingLeft + stickyView.marginStart.toFloat(), nextStickyHeader?.let { (nextStickyHeader.top - stickyView.height).toFloat() }
-                    ?: 0f)
+            canvas.translate(
+                    parent.paddingStart + stickyView.marginStart.toFloat(),
+                    nextStickyHeader?.let { (nextStickyHeader.top - stickyView.height).toFloat() } ?: 0f
+            )
             stickyHeaderInfo.visibleHeightOnScreen = nextStickyHeader?.top ?: stickyView.height
             stickyView.draw(canvas)
             canvas.restore()
@@ -143,7 +147,7 @@ class StickyHeaderLinearItemDecoration(val linearStickyHeadersListener: LinearSt
             if (e.y.toInt() in 0..stickyHeaderInfo.visibleHeightOnScreen) {
                 when (e.action) {
                     MotionEvent.ACTION_DOWN -> {
-                        if(mTimeBeforeNextClick < System.currentTimeMillis()){
+                        if (mTimeBeforeNextClick < System.currentTimeMillis()) {
                             mInterceptTouchEventInfo = InterceptTouchEventInfo(stickyHeaderInfo, System.currentTimeMillis())
                         }
                     }
@@ -168,6 +172,7 @@ class StickyHeaderLinearItemDecoration(val linearStickyHeadersListener: LinearSt
     }
 
     private class InterceptTouchEventInfo(val stickyHeaderInfo: StickyHeaderInfo, val actionDownTime: Long)
+
     private var mTimeBeforeNextClick: Long = 0
     private var mInterceptTouchEventInfo: InterceptTouchEventInfo? = null
 
