@@ -15,6 +15,7 @@ import androidx.core.graphics.BlendModeCompat
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.sokarcreative.basicstuffrecyclerview.divider.LinearDividersListener
 import com.sokarcreative.basicstuffrecyclerview.divider.LinearItemDecoration
@@ -117,6 +118,19 @@ class MainActivity : AppCompatActivity() {
             })
         }
 
+        (binding.recyclerView.layoutManager as GridLayoutManager).apply {
+            val flavorSpanCount = if(BuildConfig.isModeLibraryDebug) 2 else 1
+            spanCount = flavorSpanCount
+            spanSizeLookup = object: GridLayoutManager.SpanSizeLookup() {
+                override fun getSpanSize(position: Int): Int {
+                    return when((binding.recyclerView.adapter as DemoAdapter).getItemViewType(position)){
+                        DemoAdapter.VIEW_TYPE_MOVIE -> 1
+                        else -> flavorSpanCount
+                    }
+                }
+            }
+        }
+
         binding.recyclerView.adapter = DemoAdapter(
                 context = this,
                 addMovie = mainViewModel::addMovie,
@@ -139,7 +153,9 @@ class MainActivity : AppCompatActivity() {
         )
 
         binding.recyclerView.itemAnimator.takeIf { it is SimpleItemAnimator }?.let {
-            (it as SimpleItemAnimator).supportsChangeAnimations = false
+            (it as SimpleItemAnimator).apply {
+                supportsChangeAnimations = false
+            }
         }
 
         mainViewModel.getItemsLiveData().observe(this, Observer { items ->

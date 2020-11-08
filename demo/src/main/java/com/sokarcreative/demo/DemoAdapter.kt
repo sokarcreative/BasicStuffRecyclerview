@@ -1,7 +1,6 @@
 package com.sokarcreative.demo
 
 import android.content.Context
-import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
@@ -17,7 +16,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.sokarcreative.demo.BuildConfig
 import com.sokarcreative.basicstuffrecyclerview.Decoration
 import com.sokarcreative.demo.models.*
 import com.sokarcreative.basicstuffrecyclerview.divider.LinearDividersListener
@@ -48,8 +49,10 @@ class DemoAdapter(context: Context, val addMovie: (movie: Movie) -> Unit, val re
         else -> false
     }
 
-    val firstLastDecoration: Decoration = Decoration.Space(context.convertDpToPixel(12f))
+    val decorationFirstLast: Decoration = Decoration.Space(context.convertDpToPixel(if(BuildConfig.isModeLibraryDebug) 60f else 12f))
+    val decorationCommon: Decoration = Decoration.Space(context.convertDpToPixel(12f))
     val decorationBetwenMovies: Decoration = Decoration.Space(context.convertDpToPixel(8f))
+    val decorationGridBorderMovies: Decoration = Decoration.Space(context.resources.getDimension(R.dimen.common_horizontal_space).toInt())
 
     private inline val Locale.layoutDirection: Int
         @RequiresApi(17)
@@ -81,11 +84,11 @@ class DemoAdapter(context: Context, val addMovie: (movie: Movie) -> Unit, val re
 
     val lastDecorationActor: Decoration = Decoration.Drawable(ContextCompat.getDrawable(context, R.drawable.divider_last_actor)!!)
 
-    override fun getFirstDecoration(viewType: Int): Decoration? = if (!dividersEnabled.isFirstLastDecorationEnabled) null else firstLastDecoration
+    override fun getFirstDecoration(viewType: Int): Decoration? = if (!dividersEnabled.isFirstLastDecorationEnabled) null else decorationFirstLast
 
     override fun getFirstDividerDecoration(viewType: Int, previousViewType: Int): Decoration? = if (!dividersEnabled.isFirstDividerDecorationEnabled) null else {
         when {
-            previousViewType == VIEW_TYPE_ACTOR -> firstLastDecoration
+            previousViewType == VIEW_TYPE_ACTOR -> decorationCommon
             previousViewType == VIEW_TYPE_MOVIE && viewType == VIEW_TYPE_CATEGORY -> firstDecorationBetweenMovieAndCategory
             previousViewType == VIEW_TYPE_MOVIE && viewType == VIEW_TYPE_HEADER -> firstDecorationBetweenMovieAndheader
             viewType == VIEW_TYPE_ACTORS -> firstDecorationBetweenHeaderAndActors
@@ -101,14 +104,16 @@ class DemoAdapter(context: Context, val addMovie: (movie: Movie) -> Unit, val re
         }
     }
 
+    override fun getGridBorderDecoration(viewType: Int): Decoration?  = if(viewType == VIEW_TYPE_MOVIE) decorationGridBorderMovies else null
+
     override fun getLastDividerDecoration(viewType: Int, nextViewType: Int): Decoration? = if (!dividersEnabled.isLastDividerDecorationEnabled) null else when {
         viewType == VIEW_TYPE_ACTOR -> lastDecorationActor
-        viewType == VIEW_TYPE_HEADER && nextViewType == VIEW_TYPE_CATEGORY -> firstLastDecoration
-        viewType == VIEW_TYPE_ACTORS -> firstLastDecoration
+        viewType == VIEW_TYPE_HEADER && nextViewType == VIEW_TYPE_CATEGORY -> decorationCommon
+        viewType == VIEW_TYPE_ACTORS -> decorationCommon
         else -> null
     }
 
-    override fun getLastDecoration(viewType: Int): Decoration? = if (!dividersEnabled.isFirstLastDecorationEnabled) null else firstLastDecoration
+    override fun getLastDecoration(viewType: Int): Decoration? = if (!dividersEnabled.isFirstLastDecorationEnabled) null else decorationFirstLast
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
@@ -193,11 +198,21 @@ class DemoAdapter(context: Context, val addMovie: (movie: Movie) -> Unit, val re
     inner class ActorsViewModel(private val binding: ViewholderDemoActorsBinding) : RecyclerView.ViewHolder(binding.root) {
 
         init {
+
             binding.root.adapter = ActorsAdapter(itemView.context, dividersEnabled)
+            (binding.root.layoutManager as GridLayoutManager).apply {
+                spanCount = if(BuildConfig.isModeLibraryDebug) 3 else 1
+                spanSizeLookup = object: GridLayoutManager.SpanSizeLookup(){
+                    override fun getSpanSize(position: Int): Int {
+                        return 1
+                    }
+                }
+            };
         }
 
         fun bind(actors: MainViewModel.Actors) {
             binding.root.removeAllLinearItemDecorations()
+
             if (isDividerFeatureEnabled()) {
                 binding.root.addItemDecoration(LinearItemDecoration(binding.root.adapter as LinearDividersListener))
             }

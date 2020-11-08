@@ -4,7 +4,6 @@
     android:id="@+id/constraintLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="12dp"
     android:background="@drawable/background_viewholder_demo_movie"
     android:elevation="1dp">
 
@@ -13,7 +12,8 @@
         android:layout_width="0dp"
         android:textAlignment="viewStart"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="@dimen/common_horizontal_space"
+        android:paddingStart="@dimen/common_horizontal_space"
+        android:paddingEnd="10dp"
         android:paddingVertical="16dp"
         android:textAllCaps="true"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -118,7 +118,14 @@ class MainViewModel : ViewModel() {
                 Actor("Edward Norton"),
                 Actor("Brad Pitt"),
                 Actor("Helena Bonham Carter"),
-                Actor("Jared Leto")
+                Actor("Jared Leto"),
+                Actor("Helena Bonham Carter 1"),
+                Actor("Jared Leto 1"),
+                Actor("Jared Leto 2"),
+                Actor("Helena Bonham Carter 3"),
+                Actor("Jared Leto 3"),
+                Actor("Helena Bonham Carter 4"),
+
         )
         val movies: Set<Movie> = setOf(
                 Movie("I spit on your grave", Category.HORROR),
