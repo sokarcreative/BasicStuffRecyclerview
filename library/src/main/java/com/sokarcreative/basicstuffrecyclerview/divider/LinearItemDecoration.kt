@@ -253,7 +253,7 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
         cleanupGlobalResources()
     }
 
-    val positionOfFirstOfSameViewTypeOrSameGridSet: Int get() = mPositionOfFirstOfSameViewTypeOrSameGridSet ?: let {
+    private val positionOfFirstOfSameViewTypeOrSameGridSet: Int get() = mPositionOfFirstOfSameViewTypeOrSameGridSet ?: let {
         mPositionOfFirstOfSameViewTypeOrSameGridSet = if (mSpanSize == mSpanCount) {
             positionOfFirstSameViewType()
         } else {
@@ -262,7 +262,7 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
         mPositionOfFirstOfSameViewTypeOrSameGridSet!!
     }
 
-    val positionOfLastOfSameViewTypeOrSameGridSet: Int get() = mPositionOfLastOfSameViewTypeOrSameGridSet?:let {
+    private val positionOfLastOfSameViewTypeOrSameGridSet: Int get() = mPositionOfLastOfSameViewTypeOrSameGridSet?:let {
         mPositionOfLastOfSameViewTypeOrSameGridSet = if (mSpanSize == mSpanCount) {
             positionOfLastSameViewType()
         } else {
@@ -386,7 +386,7 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
 
     }
 
-    fun Decoration.drawOnSpanSizeLookupEquals1Previous(parent: RecyclerView, canvas: Canvas) = run {
+    private fun Decoration.drawOnSpanSizeLookupEquals1Previous(parent: RecyclerView, canvas: Canvas) = run {
         when (this) {
             is Decoration.Drawable -> {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
@@ -413,7 +413,7 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
         }
     }
 
-    fun Decoration.drawOnSpanSizeLookupEquals1Next(parent: RecyclerView, canvas: Canvas) = run {
+    private fun Decoration.drawOnSpanSizeLookupEquals1Next(parent: RecyclerView, canvas: Canvas) = run {
         when (this) {
             is Decoration.Drawable -> {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
