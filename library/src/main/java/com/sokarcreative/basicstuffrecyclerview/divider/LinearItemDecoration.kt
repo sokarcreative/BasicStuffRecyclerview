@@ -358,7 +358,7 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
             }
             if (mPosition < adapter.itemCount - 1) {
                 mNextViewType = adapter.getItemViewType(mPosition + 1)
-                if (mViewType != mNextViewType && (mSpanSize == mSpanCount || layoutManager.spanSizeCompat(mPreviousViewType) == mSpanCount)) {
+                if (mViewType != mNextViewType && (mSpanSize == mSpanCount || layoutManager.spanSizeCompat(mNextViewType) == mSpanCount)) {
                     if (mSpanSize != mSpanCount) {
                         onSameViewType()
                     }
