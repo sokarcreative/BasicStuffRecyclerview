@@ -148,7 +148,7 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
                     mLinearDividersListener.getFirstDividerDecoration(mViewType, mPreviousViewType)?.applyOffsetOnSpanSizeLookupEquals1(outRect, true)
                 },
                 onSameViewType = {
-                    if (mSpanCount == 0 || mSpanSize == mSpanCount) {
+                    if (mSpanCount == 1 || mSpanSize == mSpanCount) {
                         mLinearDividersListener.getDividerDecoration(viewType = mViewType)?.applyOffsetOnSpanSizeLookupEquals1(outRect)
                     } else {
                         mDecoration = mLinearDividersListener.getDividerDecoration(viewType = mViewType)
@@ -254,23 +254,25 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
         cleanupGlobalResources()
     }
 
-    private val positionOfFirstOfSameViewTypeOrSameGridSet: Int get() = mPositionOfFirstOfSameViewTypeOrSameGridSet ?: let {
-        mPositionOfFirstOfSameViewTypeOrSameGridSet = if (mSpanSize == mSpanCount) {
-            positionOfFirstSameViewType()
-        } else {
-            positionOfFirstSpanSizeNotEqualsSpanCount()
+    private val positionOfFirstOfSameViewTypeOrSameGridSet: Int
+        get() = mPositionOfFirstOfSameViewTypeOrSameGridSet ?: let {
+            mPositionOfFirstOfSameViewTypeOrSameGridSet = if (mSpanSize == mSpanCount) {
+                positionOfFirstSameViewType()
+            } else {
+                positionOfFirstSpanSizeNotEqualsSpanCount()
+            }
+            mPositionOfFirstOfSameViewTypeOrSameGridSet!!
         }
-        mPositionOfFirstOfSameViewTypeOrSameGridSet!!
-    }
 
-    private val positionOfLastOfSameViewTypeOrSameGridSet: Int get() = mPositionOfLastOfSameViewTypeOrSameGridSet?:let {
-        mPositionOfLastOfSameViewTypeOrSameGridSet = if (mSpanSize == mSpanCount) {
-            positionOfLastSameViewType()
-        } else {
-            positionOfLastSpanSizeNotEqualsSpanCount()
+    private val positionOfLastOfSameViewTypeOrSameGridSet: Int
+        get() = mPositionOfLastOfSameViewTypeOrSameGridSet ?: let {
+            mPositionOfLastOfSameViewTypeOrSameGridSet = if (mSpanSize == mSpanCount) {
+                positionOfLastSameViewType()
+            } else {
+                positionOfLastSpanSizeNotEqualsSpanCount()
+            }
+            mPositionOfLastOfSameViewTypeOrSameGridSet!!
         }
-        mPositionOfLastOfSameViewTypeOrSameGridSet!!
-    }
 
     /**
      * Draw horizontal dividers.
@@ -346,38 +348,38 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
                 if (mPosition == 0) {
                     onFirstViewType()
                 } else {
-                    if((0 .. mPosition).fold(0) { acc, i -> acc + layoutManager.spanSizeCompat(i) } <= mSpanCount) {
+                    if ((0..mPosition).fold(0) { acc, i -> acc + layoutManager.spanSizeCompat(i) } <= mSpanCount) {
                         onFirstViewType()
                     }
                 }
             }
             if (mPosition > 0) {
 
-                if(mSpanSize == mSpanCount){
+                if (mSpanSize == mSpanCount) {
                     mPreviousViewType = adapter.getItemViewType(mPosition - 1)
-                    if(mViewType != mPreviousViewType){
+                    if (mViewType != mPreviousViewType) {
                         onPreviousViewType()
                     }
-                }else{
-                    if((mPosition - positionOfFirstOfSameViewTypeOrSameGridSet) < mSpanCount && positionOfFirstOfSameViewTypeOrSameGridSet > 0){
-                        mPreviousViewType = adapter.getItemViewType(positionOfFirstOfSameViewTypeOrSameGridSet-1)
+                } else {
+                    if ((mPosition - positionOfFirstOfSameViewTypeOrSameGridSet) < mSpanCount && positionOfFirstOfSameViewTypeOrSameGridSet > 0) {
+                        mPreviousViewType = adapter.getItemViewType(positionOfFirstOfSameViewTypeOrSameGridSet - 1)
                         onPreviousViewType()
                     }
                 }
             }
             if (mPosition < adapter.itemCount - 1) {
 
-                if(mSpanSize == mSpanCount){
+                if (mSpanSize == mSpanCount) {
                     mNextViewType = adapter.getItemViewType(mPosition + 1)
-                    if(mViewType != mNextViewType){
+                    if (mViewType != mNextViewType) {
                         onNextViewType()
-                    }else{
+                    } else {
                         onSameViewType()
                     }
-                }else{
+                } else {
                     onSameViewType()
-                    if(positionOfLastOfSameViewTypeOrSameGridSet < adapter.itemCount - 1 && (mPosition - positionOfFirstOfSameViewTypeOrSameGridSet) / mSpanCount == (positionOfLastOfSameViewTypeOrSameGridSet - positionOfFirstOfSameViewTypeOrSameGridSet) / mSpanCount){
-                        mNextViewType = adapter.getItemViewType(positionOfLastOfSameViewTypeOrSameGridSet+1)
+                    if (positionOfLastOfSameViewTypeOrSameGridSet < adapter.itemCount - 1 && (mPosition - positionOfFirstOfSameViewTypeOrSameGridSet) / mSpanCount == (positionOfLastOfSameViewTypeOrSameGridSet - positionOfFirstOfSameViewTypeOrSameGridSet) / mSpanCount) {
+                        mNextViewType = adapter.getItemViewType(positionOfLastOfSameViewTypeOrSameGridSet + 1)
                         onNextViewType()
                     }
                 }
@@ -388,7 +390,7 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
             }
 
             if (mPosition >= adapter.itemCount - mSpanCount) {
-                if(mPosition == adapter.itemCount - 1){
+                if (mPosition == adapter.itemCount - 1) {
                     onLastViewType()
                 } else if ((mPosition until adapter.itemCount).fold(0) { acc, i -> acc + layoutManager.spanSizeCompat(i) } <= mSpanCount) {
                     if ((mPosition - positionOfFirstOfSameViewTypeOrSameGridSet) / mSpanCount == (positionOfLastOfSameViewTypeOrSameGridSet - positionOfFirstOfSameViewTypeOrSameGridSet) / mSpanCount) {
@@ -401,21 +403,27 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
 
     }
 
-    private fun Decoration.drawOnSpanSizeLookupEquals1Previous(parent: RecyclerView, canvas: Canvas) = run {
+    /**
+     * Draw drawable above the View
+     */
+    private fun Decoration.drawOnSpanSizeLookupEquals1Previous(parent: RecyclerView, canvas: Canvas) {
         when (this) {
             is Decoration.Drawable -> {
+                // if rtl, we support it
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
                     drawable.layoutDirection = parent.layoutDirection
                 }
                 if (mIsOrientationVertical) {
-                    drawable.setBounds(
-                            view.left - view.marginStart - drawable.intrinsicWidth,
-                            0,
-                            view.left - view.marginStart,
-                            view.bottom + view.marginBottom
-                    )
-                    drawable.draw(canvas)
-                } else {
+                    /*
+                     *
+                     * ----------------------
+                     *      Decoration
+                     * ----------------------
+                     * //////////////////////
+                     *        View
+                     * //////////////////////
+                     *
+                     */
                     drawable.setBounds(
                             0,
                             view.top - view.marginTop - drawable.intrinsicHeight,
@@ -423,18 +431,45 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
                             view.top - view.marginTop
                     )
                     drawable.draw(canvas)
+                } else {
+                    /*
+                     *  _____________  _______
+                     * |             |\       \
+                     * |             |\       \
+                     * | Decoration  |\ View  \
+                     * |             |\       \
+                     * |             |\       \
+                     * |_____________|\_______\
+                     *
+                     */
+                    drawable.setBounds(
+                            view.left - view.marginStart - drawable.intrinsicWidth,
+                             0,
+                            view.left - view.marginStart,
+                            view.bottom + view.marginBottom
+                    )
+                    drawable.draw(canvas)
                 }
             }
         }
     }
 
-    private fun Decoration.drawOnSpanSizeLookupEquals1Next(parent: RecyclerView, canvas: Canvas) = run {
+    private fun Decoration.drawOnSpanSizeLookupEquals1Next(parent: RecyclerView, canvas: Canvas) {
         when (this) {
             is Decoration.Drawable -> {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
                     drawable.layoutDirection = parent.layoutDirection
                 }
                 if (mIsOrientationVertical) {
+                    /*
+                    * //////////////////////
+                    *        View
+                    * //////////////////////
+                    * ----------------------
+                    *      Decoration
+                    * ----------------------
+                    *
+                    */
                     drawable.setBounds(
                             0,
                             view.bottom + view.marginBottom,
@@ -443,6 +478,15 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
                     )
                     drawable.draw(canvas)
                 } else {
+                    /*
+                     *  _______  _____________
+                     * \       \|             |
+                     * \       \|             |
+                     * \ View  \| Decoration  |
+                     * \       \|             |
+                     * \       \|             |
+                     * \_______\|_____________|
+                     */
                     drawable.setBounds(
                             view.right + view.marginEnd,
                             0,
