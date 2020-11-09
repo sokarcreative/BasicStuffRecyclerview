@@ -18,7 +18,6 @@ import androidx.core.graphics.BlendModeCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.sokarcreative.demo.BuildConfig
 import com.sokarcreative.basicstuffrecyclerview.Decoration
 import com.sokarcreative.demo.models.*
 import com.sokarcreative.basicstuffrecyclerview.divider.LinearDividersListener
@@ -79,7 +78,8 @@ class DemoAdapter(context: Context, val addMovie: (movie: Movie) -> Unit, val re
 
 
     val firstDecorationBetweenHeaderAndActors: Decoration = Decoration.Space(context.convertDpToPixel(24f))
-    val firstDecorationBetweenMovieAndCategory: Decoration = Decoration.Space(context.convertDpToPixel(24f))
+    val firstDecorationBetweenCategoryAndMovie: Decoration = Decoration.Space(context.convertDpToPixel(12f))
+    val lastDecorationBetweenMovieAndCategory: Decoration = Decoration.Space(context.convertDpToPixel(48f))
     val firstDecorationBetweenMovieAndheader: Decoration = Decoration.Space(context.convertDpToPixel(12f))
 
     val lastDecorationActor: Decoration = Decoration.Drawable(ContextCompat.getDrawable(context, R.drawable.divider_last_actor)!!)
@@ -89,7 +89,7 @@ class DemoAdapter(context: Context, val addMovie: (movie: Movie) -> Unit, val re
     override fun getFirstDividerDecoration(viewType: Int, previousViewType: Int): Decoration? = if (!dividersEnabled.isFirstDividerDecorationEnabled) null else {
         when {
             previousViewType == VIEW_TYPE_ACTOR -> decorationCommon
-            previousViewType == VIEW_TYPE_MOVIE && viewType == VIEW_TYPE_CATEGORY -> firstDecorationBetweenMovieAndCategory
+            previousViewType == VIEW_TYPE_CATEGORY && viewType == VIEW_TYPE_MOVIE -> firstDecorationBetweenCategoryAndMovie
             previousViewType == VIEW_TYPE_MOVIE && viewType == VIEW_TYPE_HEADER -> firstDecorationBetweenMovieAndheader
             viewType == VIEW_TYPE_ACTORS -> firstDecorationBetweenHeaderAndActors
             else -> null
@@ -109,6 +109,7 @@ class DemoAdapter(context: Context, val addMovie: (movie: Movie) -> Unit, val re
     override fun getLastDividerDecoration(viewType: Int, nextViewType: Int): Decoration? = if (!dividersEnabled.isLastDividerDecorationEnabled) null else when {
         viewType == VIEW_TYPE_ACTOR -> lastDecorationActor
         viewType == VIEW_TYPE_HEADER && nextViewType == VIEW_TYPE_CATEGORY -> decorationCommon
+        viewType == VIEW_TYPE_MOVIE && nextViewType == VIEW_TYPE_CATEGORY -> lastDecorationBetweenMovieAndCategory
         viewType == VIEW_TYPE_ACTORS -> decorationCommon
         else -> null
     }

@@ -3,6 +3,7 @@ package com.sokarcreative.basicstuffrecyclerview.divider
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.util.LayoutDirection
+import android.util.Log
 import android.view.View
 import androidx.core.view.*
 import androidx.recyclerview.widget.GridLayoutManager
@@ -351,20 +352,34 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
                 }
             }
             if (mPosition > 0) {
-                mPreviousViewType = adapter.getItemViewType(mPosition - 1)
-                if (mViewType != mPreviousViewType && (mSpanSize == mSpanCount || layoutManager.spanSizeCompat(mPosition - 1) == mSpanCount)) {
-                    onPreviousViewType()
+
+                if(mSpanSize == mSpanCount){
+                    mPreviousViewType = adapter.getItemViewType(mPosition - 1)
+                    if(mViewType != mPreviousViewType){
+                        onPreviousViewType()
+                    }
+                }else{
+                    if((mPosition - positionOfFirstOfSameViewTypeOrSameGridSet) < mSpanCount && positionOfFirstOfSameViewTypeOrSameGridSet > 0){
+                        mPreviousViewType = adapter.getItemViewType(positionOfFirstOfSameViewTypeOrSameGridSet-1)
+                        onPreviousViewType()
+                    }
                 }
             }
             if (mPosition < adapter.itemCount - 1) {
-                mNextViewType = adapter.getItemViewType(mPosition + 1)
-                if (mViewType != mNextViewType && (mSpanSize == mSpanCount || layoutManager.spanSizeCompat(mPosition + 1) == mSpanCount)) {
-                    if (mSpanSize != mSpanCount) {
+
+                if(mSpanSize == mSpanCount){
+                    mNextViewType = adapter.getItemViewType(mPosition + 1)
+                    if(mViewType != mNextViewType){
+                        onNextViewType()
+                    }else{
                         onSameViewType()
                     }
-                    onNextViewType()
-                } else {
+                }else{
                     onSameViewType()
+                    if(positionOfLastOfSameViewTypeOrSameGridSet < adapter.itemCount - 1 && (mPosition - positionOfFirstOfSameViewTypeOrSameGridSet) / mSpanCount == (positionOfLastOfSameViewTypeOrSameGridSet - positionOfFirstOfSameViewTypeOrSameGridSet) / mSpanCount){
+                        mNextViewType = adapter.getItemViewType(positionOfLastOfSameViewTypeOrSameGridSet+1)
+                        onNextViewType()
+                    }
                 }
             } else {
                 if (mSpanSize < mSpanCount) {
