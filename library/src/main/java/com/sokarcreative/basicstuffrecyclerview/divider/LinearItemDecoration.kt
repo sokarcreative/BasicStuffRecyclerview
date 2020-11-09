@@ -352,13 +352,13 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
             }
             if (mPosition > 0) {
                 mPreviousViewType = adapter.getItemViewType(mPosition - 1)
-                if (mViewType != mPreviousViewType && (mSpanSize == mSpanCount || layoutManager.spanSizeCompat(mPreviousViewType) == mSpanCount)) {
+                if (mViewType != mPreviousViewType && (mSpanSize == mSpanCount || layoutManager.spanSizeCompat(mPosition - 1) == mSpanCount)) {
                     onPreviousViewType()
                 }
             }
             if (mPosition < adapter.itemCount - 1) {
                 mNextViewType = adapter.getItemViewType(mPosition + 1)
-                if (mViewType != mNextViewType && (mSpanSize == mSpanCount || layoutManager.spanSizeCompat(mNextViewType) == mSpanCount)) {
+                if (mViewType != mNextViewType && (mSpanSize == mSpanCount || layoutManager.spanSizeCompat(mPosition + 1) == mSpanCount)) {
                     if (mSpanSize != mSpanCount) {
                         onSameViewType()
                     }
