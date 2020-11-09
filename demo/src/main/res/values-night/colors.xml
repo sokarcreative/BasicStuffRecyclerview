@@ -3,6 +3,8 @@
     <color name="colorPrimary">@color/background_overlay_background_16_percent</color>
     <color name="colorPrimaryDark">@android:color/black</color>
     <color name="colorAccent">#BB86FC</color>
+    <color name="colorHeaderActorsMale">@android:color/holo_blue_dark</color>
+    <color name="colorHeaderActorsFemale">@android:color/holo_orange_dark</color>
     <color name="colorHeaderActors">@android:color/holo_blue_dark</color>
     <color name="colorHeaderFavorites">@android:color/holo_orange_dark</color>
     <color name="colorHeaderMovies">@android:color/holo_green_dark</color>

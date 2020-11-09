@@ -115,16 +115,16 @@ class MainViewModel : ViewModel() {
 
     companion object {
         val actors: Set<Actor> = setOf(
-                Actor("Edward Norton"),
-                Actor("Brad Pitt"),
-                Actor("Helena Bonham Carter"),
-                Actor("Jared Leto"),
-                Actor("Helena Bonham Carter 1"),
-                Actor("Jared Leto 1"),
-                Actor("Jared Leto 2"),
-                Actor("Helena Bonham Carter 3"),
-                Actor("Jared Leto 3"),
-                Actor("Helena Bonham Carter 4"),
+                Actor("Edward Norton", true),
+                Actor("Brad Pitt", true),
+                Actor("Helena Bonham Carter", false),
+                Actor("Jared Leto", true),
+                Actor("Helena Bonham Carter 1", false),
+                Actor("Jared Leto 1", true),
+                Actor("Jared Leto 2", true),
+                Actor("Helena Bonham Carter 3", false),
+                Actor("Jared Leto 3", true),
+                Actor("Helena Bonham Carter 4", true),
 
         )
         val movies: Set<Movie> = setOf(

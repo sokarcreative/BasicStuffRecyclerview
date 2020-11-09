@@ -1,12 +1,17 @@
 package com.sokarcreative.demo
 
 import android.content.Context
+import android.graphics.BlendMode
+import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.BlendModeColorFilterCompat
+import androidx.core.graphics.BlendModeCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.sokarcreative.basicstuffrecyclerview.Decoration
@@ -22,7 +27,14 @@ class ActorsAdapter(context: Context, var dividersEnabled: MainViewModel.Divider
 
     override fun getItemCount(): Int = actors.size
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActorViewHolder = ActorViewHolder(ViewholderActorsActorBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+    override fun getItemViewType(position: Int): Int {
+        return when((actors[position] as Actor).isMale){
+            true -> VIEW_TYPE_ACTOR_MALE
+            false -> VIEW_TYPE_ACTOR_FEMALE
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActorViewHolder = ActorViewHolder(ViewholderActorsActorBinding.inflate(LayoutInflater.from(parent.context), parent, false), viewType == VIEW_TYPE_ACTOR_MALE)
 
     override fun onBindViewHolder(holder: ActorViewHolder, position: Int) {
         holder.bind(actors[position])
@@ -54,9 +66,19 @@ class ActorsAdapter(context: Context, var dividersEnabled: MainViewModel.Divider
         diff.dispatchUpdatesTo(this)
     }
 
-    class ActorViewHolder(private val binding: ViewholderActorsActorBinding): RecyclerView.ViewHolder(binding.root){
+    class ActorViewHolder(private val binding: ViewholderActorsActorBinding, isMale: Boolean): RecyclerView.ViewHolder(binding.root){
+
+        init {
+            (binding.root.background as GradientDrawable).colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(ContextCompat.getColor(itemView.context, if(isMale) R.color.colorHeaderActorsMale else R.color.colorHeaderActorsFemale), BlendModeCompat.SRC_ATOP)
+        }
+
         fun bind(actor: Actor){
             binding.textViewName.text = actor.name
         }
+    }
+
+    companion object {
+        const val VIEW_TYPE_ACTOR_MALE = 1
+        const val VIEW_TYPE_ACTOR_FEMALE = 2
     }
 }

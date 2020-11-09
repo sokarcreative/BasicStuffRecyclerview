@@ -29,7 +29,68 @@ import com.sokarcreative.basicstuffrecyclerview.Decoration
 class LinearItemDecoration constructor(var mLinearDividersListener: LinearDividersListener) :
         RecyclerView.ItemDecoration() {
 
-    private var mOrientation: Int = 0
+
+    private var positionInSameGridSet: Int = 0
+    private var gridSetCount: Int = 0
+    private var mPositionOfFirstOfSameViewTypeOrSameGridSet: Int? = null
+    private var mPositionOfLastOfSameViewTypeOrSameGridSet: Int? = null
+    private var mPosition = 0
+    private var mPreviousViewType = 0
+    private var mViewType = 0
+    private var mNextViewType = 0
+    private var mSpanCount = 0
+    private var mSpanSize = 0
+    private var mIsOrientationVertical: Boolean = false
+    private var mIsLtr: Boolean = true
+    private var mLayoutManager: LinearLayoutManager? = null
+    private val layoutManager: LinearLayoutManager get() = mLayoutManager!!
+    private var mAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>? = null
+    private val adapter: RecyclerView.Adapter<RecyclerView.ViewHolder> get() = mAdapter!!
+    private var mView: View? = null
+    private val view: View get() = mView!!
+    private var mDecoration: Decoration? = null
+    private val decoration: Decoration get() = mDecoration!!
+    private var column = 0
+    private var row = 0
+
+
+    private fun LinearLayoutManager.spanSizeCompat(position: Int): Int = if (this is GridLayoutManager) this.spanSizeLookup.getSpanSize(position) else 1
+
+    private fun hasGlobalSetupSucceed(parent: RecyclerView): Boolean {
+        mAdapter = parent.adapter ?: return false
+
+        (parent.layoutManager as? LinearLayoutManager)?.also {
+            mLayoutManager = it
+            mIsOrientationVertical = it.orientation == LinearLayoutManager.VERTICAL
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                mIsLtr = parent.layoutDirection == LayoutDirection.LTR
+            }
+        } ?: return false
+        mSpanCount = if (layoutManager is GridLayoutManager) (layoutManager as GridLayoutManager).spanCount else 1
+        return true
+    }
+
+    private fun cleanupGlobalResources() {
+        mLayoutManager = null
+        mAdapter = null
+        mView = null
+        mDecoration = null
+        mPositionOfFirstOfSameViewTypeOrSameGridSet = null
+        mPositionOfLastOfSameViewTypeOrSameGridSet = null
+    }
+
+    private fun hasViewSetupSucceed(parent: RecyclerView, view: View): Boolean {
+        mView = view
+        mPosition = parent.getChildAdapterPosition(view).takeIf { it != RecyclerView.NO_POSITION }
+                ?: return false
+        mSpanSize = layoutManager.spanSizeCompat(mPosition)
+        mViewType = adapter.getItemViewType(mPosition)
+        mPositionOfFirstOfSameViewTypeOrSameGridSet = null
+        mPositionOfLastOfSameViewTypeOrSameGridSet = null
+        mDecoration = null
+        return true
+    }
+
 
     /**
      * Draw dividers.
@@ -44,14 +105,18 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
             state: RecyclerView.State,
     ) {
 
-        val adapter = parent.adapter ?: return
+        if (!hasGlobalSetupSucceed(parent)) {
+            cleanupGlobalResources()
+            return
+        }
 
         canvas.save()
         canvas.clipRect(parent.paddingStart, parent.paddingTop, parent.width, parent.height)
 
-        drawDividers(canvas, parent, adapter)
+        drawDividers(canvas, parent)
 
         canvas.restore()
+        cleanupGlobalResources()
     }
 
     /**
@@ -69,205 +134,142 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
     ) {
         super.getItemOffsets(outRect, view, parent, state)
 
-        val adapter = parent.adapter ?: return
-        val layoutManager = (parent.layoutManager as? LinearLayoutManager)?.also {
-            mOrientation = it.orientation
-        } ?: return
+        if (!hasGlobalSetupSucceed(parent) || !hasViewSetupSucceed(parent, view)) {
+            cleanupGlobalResources()
+            return
+        }
 
-        val spanCount = layoutManager.spanCountCompat
-
-        val position: Int = parent.getChildAdapterPosition(view)
-        if (position != RecyclerView.NO_POSITION) {
-            val spanSize = layoutManager.spanSizeCompat(position)
-            fun Decoration.applyOffsetOnSpanSizeLookupEquals1(reverse: Boolean = false) = run {
-                if (mOrientation == LinearLayoutManager.HORIZONTAL) {
-                    if (parent.layoutDirection == LayoutDirection.LTR) {
-                        if (reverse) {
-                            outRect.left = width
-                        } else {
-                            outRect.right = width
-                        }
+        onDivider(
+                onFirstViewType = {
+                    mLinearDividersListener.getFirstDecoration(mViewType)?.applyOffsetOnSpanSizeLookupEquals1(outRect, true)
+                },
+                onPreviousViewType = {
+                    mLinearDividersListener.getFirstDividerDecoration(mViewType, mPreviousViewType)?.applyOffsetOnSpanSizeLookupEquals1(outRect, true)
+                },
+                onSameViewType = {
+                    if (mSpanCount == 0 || mSpanSize == mSpanCount) {
+                        mLinearDividersListener.getDividerDecoration(viewType = mViewType)?.applyOffsetOnSpanSizeLookupEquals1(outRect)
                     } else {
-                        if (reverse) {
-                            outRect.right = width
-                        } else {
-                            outRect.left = width
-                        }
-                    }
-                } else if (mOrientation == LinearLayoutManager.VERTICAL) {
-                    if (reverse) {
-                        outRect.top = height
-                    } else {
-                        outRect.bottom = height
-                    }
-                }
-            }
-            val viewType = adapter.getItemViewType(position)
-            val positionOfFirstSameViewType: Int by lazy {
-                var p = 0
-                for (i in position downTo 0) {
-                    val itemViewType = adapter.getItemViewType(i)
-                    if (itemViewType != viewType) {
-                        p = i + 1
-                        break
-                    }
-                }
-                p
-            }
-
-            val positionOfLastSameViewType: Int by lazy {
-                var p = adapter.itemCount - 1
-                for (i in position until adapter.itemCount) {
-                    val itemViewType = adapter.getItemViewType(i)
-                    if (itemViewType != viewType) {
-                        p = i - 1
-                        break
-                    }
-                }
-                p
-            }
-
-            onDivider(
-                    layoutManager,
-                    adapter,
-                    position,
-                    onFirstViewType = { viewType ->
-                        mLinearDividersListener.getFirstDecoration(viewType)?.applyOffsetOnSpanSizeLookupEquals1(true)
-                    },
-                    onPreviousViewType = { viewType, previousViewType ->
-                        mLinearDividersListener.getFirstDividerDecoration(viewType, previousViewType)?.applyOffsetOnSpanSizeLookupEquals1(true)
-                    },
-                    onSameViewType = { viewType, isLast ->
-                        if (!(spanCount > 1 && spanSize != spanCount)) {
-                            if (!isLast) {
-                                val decoration = mLinearDividersListener.getDividerDecoration(viewType = viewType)
-                                        ?: return@onDivider
-                                decoration.applyOffsetOnSpanSizeLookupEquals1()
-                            }
-                        } else {
-                            val decoration = mLinearDividersListener.getDividerDecoration(viewType = viewType)
-                                    ?: return@onDivider
-                            val sameTypesCount = positionOfLastSameViewType - positionOfFirstSameViewType
-                            val positionInSameViewTypes = position - positionOfFirstSameViewType
-
-                            if (mOrientation == LinearLayoutManager.HORIZONTAL) {
-
-                                val column = positionInSameViewTypes/spanCount
-                                if(column < sameTypesCount/spanCount){
-                                    if (parent.layoutDirection == LayoutDirection.LTR) {
-                                        outRect.right = decoration.width/2
-                                    }else{
-                                        outRect.left = decoration.width/2
-                                    }
-                                }
-                                if(column > 0){
-                                    if (parent.layoutDirection == LayoutDirection.LTR) {
-                                        outRect.left = decoration.width/2
-                                    }else{
-                                        outRect.right = decoration.width/2
-                                    }
-                                }
-
-                                val row = positionInSameViewTypes%spanCount
-                                if (row > 0) {
-                                    outRect.bottom = decoration.height
-                                }
-
-                            } else if (mOrientation == LinearLayoutManager.VERTICAL) {
-                                val column = positionInSameViewTypes%spanCount
-                                if(column > 0){
-                                    if (parent.layoutDirection == LayoutDirection.LTR) {
-                                        outRect.left = decoration.width/2
-                                    } else {
-                                        outRect.right = decoration.width/2
-                                    }
-                                }
-                                if(column < spanCount-1){
-                                    if (parent.layoutDirection == LayoutDirection.LTR) {
-                                        outRect.right = decoration.width/2
-                                    } else {
-                                        outRect.left = decoration.width/2
-                                    }
-                                }
-                                val row = positionInSameViewTypes/spanCount
-                                if (row < sameTypesCount/spanCount) {
-                                    outRect.bottom = decoration.height
-                                }
-                            }
-                        }
-                    },
-                    onNextViewType = { viewType, nextViewType ->
-                        mLinearDividersListener.getLastDividerDecoration(viewType, nextViewType)?.applyOffsetOnSpanSizeLookupEquals1()
-                    },
-                    onLastViewType = { viewType ->
-                        mLinearDividersListener.getLastDecoration(viewType)?.applyOffsetOnSpanSizeLookupEquals1()
-                    },
-                    onGridBorderViewType = { viewType ->
-                        val borderDecoration = mLinearDividersListener.getGridBorderDecoration(adapter.getItemViewType(position))
+                        mDecoration = mLinearDividersListener.getDividerDecoration(viewType = mViewType)
                                 ?: return@onDivider
-                        if (!(spanCount > 1 && spanSize != spanCount)) {
-                            if (mOrientation == LinearLayoutManager.VERTICAL) {
-                                outRect.left = borderDecoration.width
-                                outRect.right = borderDecoration.width
-                            } else {
-                                outRect.top = borderDecoration.height
-                                outRect.bottom = borderDecoration.height
+                        gridSetCount = positionOfLastOfSameViewTypeOrSameGridSet - positionOfFirstOfSameViewTypeOrSameGridSet
+                        positionInSameGridSet = mPosition - positionOfFirstOfSameViewTypeOrSameGridSet
+
+                        if (mIsOrientationVertical) {
+                            column = positionInSameGridSet % mSpanCount
+                            if (column > 0) {
+                                if (mIsLtr) {
+                                    outRect.left = decoration.width / 2
+                                } else {
+                                    outRect.right = decoration.width / 2
+                                }
+                            }
+                            if (column < mSpanCount - 1) {
+                                if (mIsLtr) {
+                                    outRect.right = decoration.width / 2
+                                } else {
+                                    outRect.left = decoration.width / 2
+                                }
+                            }
+                            row = positionInSameGridSet / mSpanCount
+                            if (row < gridSetCount / mSpanCount) {
+                                outRect.bottom = decoration.height
                             }
                         } else {
-                            val positionInSameViewTypes = position - positionOfFirstSameViewType
-                            if (mOrientation == LinearLayoutManager.HORIZONTAL) {
-                                if (positionInSameViewTypes % spanCount == 0) {
-                                    if (parent.layoutDirection == LayoutDirection.LTR) {
-                                        outRect.top = borderDecoration.height
-                                    } else {
-                                        outRect.bottom = borderDecoration.height
-                                    }
-                                } else if (positionInSameViewTypes % spanCount == spanCount - 1) {
-                                    if (parent.layoutDirection == LayoutDirection.LTR) {
-                                        outRect.bottom = borderDecoration.height
-                                    } else {
-                                        outRect.top = borderDecoration.height
-                                    }
+                            column = positionInSameGridSet / mSpanCount
+                            if (column < gridSetCount / mSpanCount) {
+                                if (mIsLtr) {
+                                    outRect.right = decoration.width / 2
+                                } else {
+                                    outRect.left = decoration.width / 2
                                 }
-                            } else if (mOrientation == LinearLayoutManager.VERTICAL) {
-                                if (positionInSameViewTypes % spanCount == 0) {
-                                    if (parent.layoutDirection == LayoutDirection.LTR) {
-                                        outRect.left = borderDecoration.width
-                                    } else {
-                                        outRect.right = borderDecoration.width
-                                    }
-                                } else if (positionInSameViewTypes % spanCount == spanCount - 1) {
-                                    if (parent.layoutDirection == LayoutDirection.LTR) {
-                                        outRect.right = borderDecoration.width
-                                    } else {
-                                        outRect.left = borderDecoration.width
-                                    }
+                            }
+                            if (column > 0) {
+                                if (mIsLtr) {
+                                    outRect.left = decoration.width / 2
+                                } else {
+                                    outRect.right = decoration.width / 2
+                                }
+                            }
+                            row = positionInSameGridSet % mSpanCount
+                            if (row > 0) {
+                                outRect.bottom = decoration.height
+                            }
+
+                        }
+                    }
+                },
+                onNextViewType = {
+                    mLinearDividersListener.getLastDividerDecoration(mViewType, mNextViewType)?.applyOffsetOnSpanSizeLookupEquals1(outRect)
+                },
+                onLastViewType = {
+                    mLinearDividersListener.getLastDecoration(mViewType)?.applyOffsetOnSpanSizeLookupEquals1(outRect)
+                },
+                onGridBorderViewType = { viewType ->
+                    mDecoration = mLinearDividersListener.getGridBorderDecoration(mViewType)
+                            ?: return@onDivider
+                    if (!(mSpanCount > 1 && mSpanSize != mSpanCount)) {
+                        if (mIsOrientationVertical) {
+                            outRect.left = decoration.width
+                            outRect.right = decoration.width
+                        } else {
+                            outRect.top = decoration.height
+                            outRect.bottom = decoration.height
+                        }
+                    } else {
+                        positionInSameGridSet = mPosition - positionOfFirstOfSameViewTypeOrSameGridSet
+                        if (mIsOrientationVertical) {
+                            if (positionInSameGridSet % mSpanCount == 0) {
+                                if (mIsLtr) {
+                                    outRect.left = decoration.width
+                                } else {
+                                    outRect.right = decoration.width
+                                }
+                            } else if (positionInSameGridSet % mSpanCount == mSpanCount - 1) {
+                                if (mIsLtr) {
+                                    outRect.right = decoration.width
+                                } else {
+                                    outRect.left = decoration.width
+                                }
+                            }
+                        } else {
+                            if (positionInSameGridSet % mSpanCount == 0) {
+                                if (mIsLtr) {
+                                    outRect.top = decoration.height
+                                } else {
+                                    outRect.bottom = decoration.height
+                                }
+                            } else if (positionInSameGridSet % mSpanCount == mSpanCount - 1) {
+                                if (mIsLtr) {
+                                    outRect.bottom = decoration.height
+                                } else {
+                                    outRect.top = decoration.height
                                 }
                             }
                         }
                     }
-            )
-        }/*else {
-            if (spanCount > 1) {
-                val viewHolder = parent.findContainingViewHolder(view) ?: return
-                val borderDecoration = mLinearDividersListener.getGridBorderDecoration(viewHolder.itemViewType)
-                        ?: return
-                if (mOrientation == LinearLayoutManager.VERTICAL) {
-                    outRect.right = borderDecoration.width
-                    outRect.left = borderDecoration.width
-                } else {
-                    outRect.top = borderDecoration.height
-                    outRect.bottom = borderDecoration.height
                 }
-            }
-        }*/
+        )
+        cleanupGlobalResources()
     }
 
+    val positionOfFirstOfSameViewTypeOrSameGridSet: Int get() = mPositionOfFirstOfSameViewTypeOrSameGridSet ?: let {
+        mPositionOfFirstOfSameViewTypeOrSameGridSet = if (mSpanSize == mSpanCount) {
+            positionOfFirstSameViewType()
+        } else {
+            positionOfFirstSpanSizeNotEqualsSpanCount()
+        }
+        mPositionOfFirstOfSameViewTypeOrSameGridSet!!
+    }
 
-
-    private inline val LinearLayoutManager.spanCountCompat get(): Int = if (this is GridLayoutManager) this.spanCount else 1
-    private fun LinearLayoutManager.spanSizeCompat(position: Int): Int = if (this is GridLayoutManager) this.spanSizeLookup.getSpanSize(position) else 1
-
+    val positionOfLastOfSameViewTypeOrSameGridSet: Int get() = mPositionOfLastOfSameViewTypeOrSameGridSet?:let {
+        mPositionOfLastOfSameViewTypeOrSameGridSet = if (mSpanSize == mSpanCount) {
+            positionOfLastSameViewType()
+        } else {
+            positionOfLastSpanSizeNotEqualsSpanCount()
+        }
+        mPositionOfLastOfSameViewTypeOrSameGridSet!!
+    }
 
     /**
      * Draw horizontal dividers.
@@ -278,98 +280,32 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
     private fun drawDividers(
             canvas: Canvas,
             parent: RecyclerView,
-            adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>,
     ) {
-        val childCount = parent.childCount
-        for (i in 0 until childCount) {
-            val view = parent.getChildAt(i)
-            val viewHolder = parent.getChildViewHolder(view)
-            val position: Int = parent.getChildAdapterPosition(view)
-            val layoutManager = (parent.layoutManager as? LinearLayoutManager)?.also {
-                mOrientation = it.orientation
-            } ?: return
-            val spanCount = if (layoutManager is GridLayoutManager) layoutManager.spanCount else 1
-            if (viewHolder != null && position != RecyclerView.NO_POSITION) {
-                fun Decoration.drawOnSpanSizeLookupEquals1Previous() = run {
-                    when (this) {
-                        is Decoration.Drawable -> {
-                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                                drawable.layoutDirection = parent.layoutDirection
-                            }
-                            if (mOrientation == LinearLayoutManager.HORIZONTAL) {
-                                drawable.setBounds(
-                                        view.left - view.marginStart - drawable.intrinsicWidth,
-                                        0,
-                                        view.left - view.marginStart,
-                                        view.bottom + view.marginBottom
-                                )
-                                drawable.draw(canvas)
-                            } else {
-                                drawable.setBounds(
-                                        0,
-                                        view.top - view.marginTop - drawable.intrinsicHeight,
-                                        view.right + view.marginEnd,
-                                        view.top - view.marginTop
-                                )
-                                drawable.draw(canvas)
-                            }
-                        }
-                    }
-                }
-
-                fun Decoration.drawOnSpanSizeLookupEquals1Next() = run {
-                    when (this) {
-                        is Decoration.Drawable -> {
-                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                                drawable.layoutDirection = parent.layoutDirection
-                            }
-                            if (mOrientation == LinearLayoutManager.HORIZONTAL) {
-                                drawable.setBounds(
-                                        view.right + view.marginEnd,
-                                        0,
-                                        view.right + view.marginEnd + drawable.intrinsicWidth,
-                                        view.bottom + view.marginBottom
-                                )
-                                drawable.draw(canvas)
-                            } else {
-                                drawable.setBounds(
-                                        0,
-                                        view.bottom + view.marginBottom,
-                                        view.right + view.marginEnd,
-                                        view.bottom + view.marginBottom + drawable.intrinsicHeight
-                                )
-                                drawable.draw(canvas)
-                            }
-                        }
-                    }
-                }
-
-                onDivider(
-                        layoutManager,
-                        adapter,
-                        position,
-                        onFirstViewType = { viewType ->
-                            mLinearDividersListener.getFirstDecoration(viewType)?.drawOnSpanSizeLookupEquals1Previous()
-                        },
-                        onPreviousViewType = { viewType, previousViewType ->
-                            mLinearDividersListener.getFirstDividerDecoration(viewType, previousViewType)?.drawOnSpanSizeLookupEquals1Previous()
-                        },
-                        onSameViewType = { viewType, isLast ->
-                            if (!isLast) {
-                                mLinearDividersListener.getDividerDecoration(viewType)?.drawOnSpanSizeLookupEquals1Next()
-                            }
-                        },
-                        onNextViewType = { viewType, nextViewType ->
-                            mLinearDividersListener.getLastDividerDecoration(viewType, nextViewType)?.drawOnSpanSizeLookupEquals1Next()
-                        },
-                        onLastViewType = { viewType ->
-                            mLinearDividersListener.getLastDecoration(viewType)?.drawOnSpanSizeLookupEquals1Next()
-                        },
-                        onGridBorderViewType = { viewType ->
-                            // not supported
-                        }
-                )
+        for (i in 0 until parent.childCount) {
+            if (!hasViewSetupSucceed(parent, parent.getChildAt(i))) {
+                continue
             }
+
+            onDivider(
+                    onFirstViewType = {
+                        mLinearDividersListener.getFirstDecoration(mViewType)?.drawOnSpanSizeLookupEquals1Previous(parent, canvas)
+                    },
+                    onPreviousViewType = {
+                        mLinearDividersListener.getFirstDividerDecoration(mViewType, mPreviousViewType)?.drawOnSpanSizeLookupEquals1Previous(parent, canvas)
+                    },
+                    onSameViewType = {
+                        mLinearDividersListener.getDividerDecoration(mViewType)?.drawOnSpanSizeLookupEquals1Next(parent, canvas)
+                    },
+                    onNextViewType = {
+                        mLinearDividersListener.getLastDividerDecoration(mViewType, mNextViewType)?.drawOnSpanSizeLookupEquals1Next(parent, canvas)
+                    },
+                    onLastViewType = {
+                        mLinearDividersListener.getLastDecoration(mViewType)?.drawOnSpanSizeLookupEquals1Next(parent, canvas)
+                    },
+                    onGridBorderViewType = { viewType ->
+                        // not supported
+                    }
+            )
         }
     }
 
@@ -377,91 +313,167 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
      * @return the next decoration at the given [position].
      */
     private fun onDivider(
-            layoutManager: LinearLayoutManager,
-            adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>,
-            position: Int,
-            onFirstViewType: (viewType: Int) -> Unit,
-            onPreviousViewType: (viewType: Int, previousViewType: Int) -> Unit,
-            onSameViewType: (viewType: Int, isLast: Boolean) -> Unit,
-            onNextViewType: (viewType: Int, nextViewType: Int) -> Unit,
-            onLastViewType: (viewType: Int) -> Unit,
+            onFirstViewType: () -> Unit,
+            onPreviousViewType: () -> Unit,
+            onSameViewType: () -> Unit,
+            onNextViewType: () -> Unit,
+            onLastViewType: () -> Unit,
             onGridBorderViewType: (viewType: Int) -> Unit,
     ) {
-
-        val spanCount = layoutManager.spanCountCompat
-        val viewType = adapter.getItemViewType(position)
-        if (position < spanCount) {
-            if (spanCount == 1) {
-                onFirstViewType(viewType)
+        if (mSpanCount == 1) {
+            if (mPosition == 0) {
+                onFirstViewType()
             } else {
-                val gridLayoutManager: GridLayoutManager = layoutManager as GridLayoutManager
-                var spanSizeLookup = 0
-                for (i in 0 until position) {
-                    spanSizeLookup += gridLayoutManager.spanSizeLookup.getSpanSize(i)
-                }
-                if (spanSizeLookup < spanCount) {
-                    onFirstViewType(viewType)
+                mPreviousViewType = adapter.getItemViewType(mPosition - 1)
+                if (mViewType != mPreviousViewType) {
+                    onPreviousViewType()
                 }
             }
-        }
-        if (position > 0) {
-            val previousViewType: Int = adapter.getItemViewType(position - 1)
-            if (viewType != previousViewType) {
-                onPreviousViewType(viewType, previousViewType)
+            if (mPosition < adapter.itemCount - 1) {
+                mNextViewType = adapter.getItemViewType(mPosition + 1)
+                if (mViewType != mNextViewType) {
+                    onNextViewType()
+                } else {
+                    onSameViewType()
+                }
             }
-        }
-        if (position + 1 < adapter.itemCount) {
-            val nextViewType: Int = adapter.getItemViewType(position + 1)
-            if (viewType != nextViewType) {
-                onSameViewType(viewType, true)
-                onNextViewType(viewType, nextViewType)
-            } else {
-                onSameViewType(viewType, false)
+            if (mPosition == adapter.itemCount - 1) {
+                onLastViewType()
             }
         } else {
-            onSameViewType(viewType, true)
-        }
-        if (position >= adapter.itemCount - spanCount) {
-            if (spanCount == 1) {
-                onLastViewType(viewType)
-            } else {
-                val gridLayoutManager: GridLayoutManager = layoutManager as GridLayoutManager
-                var spanSizeLookup = 0
-                for (i in position until adapter.itemCount) {
-                    spanSizeLookup += gridLayoutManager.spanSizeLookup.getSpanSize(i)
-                }
-                if (spanSizeLookup <= spanCount) {
-                    fun positionOfFirstSameViewType(adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>, position: Int, viewType: Int): Int = run {
-                        for (i in position downTo 0) {
-                            val itemViewType = adapter.getItemViewType(i)
-                            if (itemViewType != viewType) {
-                                return@run i + 1
-                            }
-                        }
-                        return@run 0
-                    }
-
-                    fun positionOfLastSameViewType(adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>, position: Int, viewType: Int): Int = run {
-                        for (i in position until adapter.itemCount) {
-                            val itemViewType = adapter.getItemViewType(i)
-                            if (itemViewType != viewType) {
-                                return@run i - 1
-                            }
-                        }
-                        return@run adapter.itemCount - 1
-                    }
-                    val positionOfFirstOfSameViewType = positionOfFirstSameViewType(adapter, position, viewType)
-                    val positionOfLastOfSameViewType = positionOfLastSameViewType(adapter, position, viewType)
-                    val positionInSameViewTypes = position - positionOfFirstOfSameViewType
-                    val sameTypesCount = positionOfLastOfSameViewType - positionOfFirstOfSameViewType
-                    if (positionInSameViewTypes/spanCount == sameTypesCount / spanCount) {
-                        onLastViewType(viewType)
+            if (mPosition < mSpanCount) {
+                if (mPosition == 0) {
+                    onFirstViewType()
+                } else {
+                    if((0 .. mPosition).fold(0) { acc, i -> acc + layoutManager.spanSizeCompat(i) } <= mSpanCount) {
+                        onFirstViewType()
                     }
                 }
             }
+            if (mPosition > 0) {
+                mPreviousViewType = adapter.getItemViewType(mPosition - 1)
+                if (mViewType != mPreviousViewType && (mSpanSize == mSpanCount || layoutManager.spanSizeCompat(mPreviousViewType) == mSpanCount)) {
+                    onPreviousViewType()
+                }
+            }
+            if (mPosition < adapter.itemCount - 1) {
+                mNextViewType = adapter.getItemViewType(mPosition + 1)
+                if (mViewType != mNextViewType && (mSpanSize == mSpanCount || layoutManager.spanSizeCompat(mPreviousViewType) == mSpanCount)) {
+                    if (mSpanSize != mSpanCount) {
+                        onSameViewType()
+                    }
+                    onNextViewType()
+                } else {
+                    onSameViewType()
+                }
+            } else {
+                if (mSpanSize < mSpanCount) {
+                    onSameViewType()
+                }
+            }
+
+            if (mPosition >= adapter.itemCount - mSpanCount) {
+                if(mPosition == adapter.itemCount - 1){
+                    onLastViewType()
+                } else if ((mPosition until adapter.itemCount).fold(0) { acc, i -> acc + layoutManager.spanSizeCompat(i) } <= mSpanCount) {
+                    if ((mPosition - positionOfFirstOfSameViewTypeOrSameGridSet) / mSpanCount == (positionOfLastOfSameViewTypeOrSameGridSet - positionOfFirstOfSameViewTypeOrSameGridSet) / mSpanCount) {
+                        onLastViewType()
+                    }
+                }
+            }
+            onGridBorderViewType(mViewType)
         }
-        onGridBorderViewType(viewType)
+
     }
 
+    fun Decoration.drawOnSpanSizeLookupEquals1Previous(parent: RecyclerView, canvas: Canvas) = run {
+        when (this) {
+            is Decoration.Drawable -> {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                    drawable.layoutDirection = parent.layoutDirection
+                }
+                if (mIsOrientationVertical) {
+                    drawable.setBounds(
+                            view.left - view.marginStart - drawable.intrinsicWidth,
+                            0,
+                            view.left - view.marginStart,
+                            view.bottom + view.marginBottom
+                    )
+                    drawable.draw(canvas)
+                } else {
+                    drawable.setBounds(
+                            0,
+                            view.top - view.marginTop - drawable.intrinsicHeight,
+                            view.right + view.marginEnd,
+                            view.top - view.marginTop
+                    )
+                    drawable.draw(canvas)
+                }
+            }
+        }
+    }
+
+    fun Decoration.drawOnSpanSizeLookupEquals1Next(parent: RecyclerView, canvas: Canvas) = run {
+        when (this) {
+            is Decoration.Drawable -> {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                    drawable.layoutDirection = parent.layoutDirection
+                }
+                if (mIsOrientationVertical) {
+                    drawable.setBounds(
+                            0,
+                            view.bottom + view.marginBottom,
+                            view.right + view.marginEnd,
+                            view.bottom + view.marginBottom + drawable.intrinsicHeight
+                    )
+                    drawable.draw(canvas)
+                } else {
+                    drawable.setBounds(
+                            view.right + view.marginEnd,
+                            0,
+                            view.right + view.marginEnd + drawable.intrinsicWidth,
+                            view.bottom + view.marginBottom
+                    )
+                    drawable.draw(canvas)
+                }
+            }
+        }
+    }
+
+    private fun Decoration.applyOffsetOnSpanSizeLookupEquals1(outRect: Rect, reverse: Boolean = false) = run {
+        if (mIsOrientationVertical) {
+            if (reverse) {
+                outRect.top = height
+            } else {
+                outRect.bottom = height
+            }
+        } else {
+            if (mIsLtr) {
+                if (reverse) {
+                    outRect.left = width
+                } else {
+                    outRect.right = width
+                }
+            } else {
+                if (reverse) {
+                    outRect.right = width
+                } else {
+                    outRect.left = width
+                }
+            }
+        }
+    }
+
+    private fun positionOfFirstSpanSizeNotEqualsSpanCount(): Int = (mPosition downTo 0).firstOrNull { i -> layoutManager.spanSizeCompat(i) == mSpanCount }?.let { it + 1 }
+            ?: 0
+
+    private fun positionOfLastSpanSizeNotEqualsSpanCount(): Int = (mPosition until adapter.itemCount).firstOrNull { i -> layoutManager.spanSizeCompat(i) == mSpanCount }?.let { it - 1 }
+            ?: (adapter.itemCount - 1)
+
+    private fun positionOfFirstSameViewType(): Int = (mPosition downTo 0).firstOrNull { i -> adapter.getItemViewType(i) != mViewType }?.let { it + 1 }
+            ?: 0
+
+    private fun positionOfLastSameViewType(): Int = (mPosition until adapter.itemCount).firstOrNull { i -> adapter.getItemViewType(i) != mViewType }?.let { it - 1 }
+            ?: (adapter.itemCount - 1)
 
 }
