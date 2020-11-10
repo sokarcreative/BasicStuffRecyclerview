@@ -398,9 +398,8 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
                     }
                 }
             }
-            onGridBorderViewType(mViewType)
         }
-
+        onGridBorderViewType(mViewType)
     }
 
     /**
