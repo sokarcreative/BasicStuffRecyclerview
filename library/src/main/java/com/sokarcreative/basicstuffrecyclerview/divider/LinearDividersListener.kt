@@ -31,7 +31,7 @@ interface LinearDividersListener {
      * @property viewType The current viewType.
      * @return grid border decoration between around viewHolder with the same [viewType].
      */
-    fun getGridBorderDecoration(viewType: Int): Decoration? = null
+    fun getGridSideBorderDecoration(viewType: Int): Decoration? = null
 
     /**
      * @property viewType The current viewType.

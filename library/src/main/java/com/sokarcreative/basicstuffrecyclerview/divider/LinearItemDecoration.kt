@@ -3,7 +3,6 @@ package com.sokarcreative.basicstuffrecyclerview.divider
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.util.LayoutDirection
-import android.util.Log
 import android.view.View
 import androidx.core.view.*
 import androidx.recyclerview.widget.GridLayoutManager
@@ -43,36 +42,61 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
     private var mSpanSize = 0
     private var mIsOrientationVertical: Boolean = false
     private var mIsLtr: Boolean = true
-    private var mLayoutManager: LinearLayoutManager? = null
-    private val layoutManager: LinearLayoutManager get() = mLayoutManager!!
     private var mAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>? = null
     private val adapter: RecyclerView.Adapter<RecyclerView.ViewHolder> get() = mAdapter!!
     private var mView: View? = null
     private val view: View get() = mView!!
     private var mDecoration: Decoration? = null
     private val decoration: Decoration get() = mDecoration!!
-    private var column = 0
-    private var row = 0
+    private var column: Int = 0
+    private var row: Int = 0
+    private var mGetSpanSize: ((Int) -> Int)? = null
+    private val getSpanSize: ((Int) -> Int) get() = mGetSpanSize!!
+    private var rows: Int = 0
+    private var columns: Int = 0
+    private var offsetLeft: Int = 0
+    private var offsetTop: Int = 0
+    private var offsetRight: Int = 0
+    private var offsetBottom: Int = 0
 
 
-    private fun LinearLayoutManager.spanSizeCompat(position: Int): Int = if (this is GridLayoutManager) this.spanSizeLookup.getSpanSize(position) else 1
+    private val positionOfFirstOfSameViewTypeOrSameGridSet: Int
+        get() = mPositionOfFirstOfSameViewTypeOrSameGridSet ?: let {
+            mPositionOfFirstOfSameViewTypeOrSameGridSet = if (mSpanSize == mSpanCount) {
+                positionOfFirstSameViewType()
+            } else {
+                positionOfFirstSpanSizeNotEqualsSpanCount()
+            }
+            mPositionOfFirstOfSameViewTypeOrSameGridSet!!
+        }
+
+    private val positionOfLastOfSameViewTypeOrSameGridSet: Int
+        get() = mPositionOfLastOfSameViewTypeOrSameGridSet ?: let {
+            mPositionOfLastOfSameViewTypeOrSameGridSet = if (mSpanSize == mSpanCount) {
+                positionOfLastSameViewType()
+            } else {
+                positionOfLastSpanSizeNotEqualsSpanCount()
+            }
+            mPositionOfLastOfSameViewTypeOrSameGridSet!!
+        }
 
     private fun hasGlobalSetupSucceed(parent: RecyclerView): Boolean {
         mAdapter = parent.adapter ?: return false
 
         (parent.layoutManager as? LinearLayoutManager)?.also {
-            mLayoutManager = it
+            mGetSpanSize = if (it is GridLayoutManager) it.spanSizeLookup::getSpanSize else { postion -> 1 }
+            mSpanCount = if (it is GridLayoutManager) it.spanCount else 1
             mIsOrientationVertical = it.orientation == LinearLayoutManager.VERTICAL
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
                 mIsLtr = parent.layoutDirection == LayoutDirection.LTR
             }
         } ?: return false
-        mSpanCount = if (layoutManager is GridLayoutManager) (layoutManager as GridLayoutManager).spanCount else 1
+
         return true
     }
 
     private fun cleanupGlobalResources() {
-        mLayoutManager = null
+        mGetSpanSize = null
         mAdapter = null
         mView = null
         mDecoration = null
@@ -84,7 +108,7 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
         mView = view
         mPosition = parent.getChildAdapterPosition(view).takeIf { it != RecyclerView.NO_POSITION }
                 ?: return false
-        mSpanSize = layoutManager.spanSizeCompat(mPosition)
+        mSpanSize = getSpanSize(mPosition)
         mViewType = adapter.getItemViewType(mPosition)
         mPositionOfFirstOfSameViewTypeOrSameGridSet = null
         mPositionOfLastOfSameViewTypeOrSameGridSet = null
@@ -140,6 +164,20 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
             return
         }
 
+        getItemOffsets(outRect, adapter, mSpanCount, mPosition, mSpanSize, mIsOrientationVertical, mIsLtr, getSpanSize)
+    }
+
+    internal fun getItemOffsets(outRect: Rect, adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>, spanCount: Int, position: Int, spanSize: Int, isOrientationVertical: Boolean, isLtr: Boolean, getSpanSize: (Int) -> Int): Rect {
+        mAdapter = adapter
+        mSpanCount = spanCount
+        mPosition = position
+        mSpanSize = spanSize
+        mIsOrientationVertical = isOrientationVertical
+        mIsLtr = isLtr
+        mViewType = adapter.getItemViewType(position)
+        mPositionOfFirstOfSameViewTypeOrSameGridSet = null
+        mPositionOfLastOfSameViewTypeOrSameGridSet = null
+        mGetSpanSize = getSpanSize
         onDivider(
                 onFirstViewType = {
                     mLinearDividersListener.getFirstDecoration(mViewType)?.applyOffsetOnSpanSizeLookupEquals1(outRect, true)
@@ -157,7 +195,27 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
                         positionInSameGridSet = mPosition - positionOfFirstOfSameViewTypeOrSameGridSet
 
                         if (mIsOrientationVertical) {
+                            row = positionInSameGridSet / mSpanCount
                             column = positionInSameGridSet % mSpanCount
+                            rows = (positionOfLastOfSameViewTypeOrSameGridSet - positionOfFirstOfSameViewTypeOrSameGridSet) / spanCount
+                            columns = (positionOfLastOfSameViewTypeOrSameGridSet - positionOfFirstOfSameViewTypeOrSameGridSet) % spanCount
+                            if (isLtr) {
+                                offsetLeft = if (column > 0) decoration.width / 2 else 0
+                                offsetRight = if (column < columns) decoration.width / 2 else 0
+                                offsetBottom = if (row < rows) decoration.width / 2 else 0
+                                offsetTop = if (row > 0) decoration.width / 2 else 0
+                            }else{
+                                offsetRight = if (column > 0) decoration.width / 2 else 0
+                                offsetLeft = if (column < columns) decoration.width / 2 else 0
+                                offsetBottom = if (row < rows) decoration.width / 2 else 0
+                                offsetTop = if (row > 0) decoration.width / 2 else 0
+                            }
+                            outRect.left = offsetLeft
+                            outRect.top = offsetTop
+                            outRect.right = offsetRight
+                            outRect.bottom = offsetBottom
+
+               /*
                             if (column > 0) {
                                 if (mIsLtr) {
                                     outRect.left = decoration.width / 2
@@ -172,10 +230,12 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
                                     outRect.left = decoration.width / 2
                                 }
                             }
+
+
                             row = positionInSameGridSet / mSpanCount
                             if (row < gridSetCount / mSpanCount) {
                                 outRect.bottom = decoration.height
-                            }
+                            }*/
                         } else {
                             column = positionInSameGridSet / mSpanCount
                             if (column < gridSetCount / mSpanCount) {
@@ -207,7 +267,7 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
                     mLinearDividersListener.getLastDecoration(mViewType)?.applyOffsetOnSpanSizeLookupEquals1(outRect)
                 },
                 onGridBorderViewType = { viewType ->
-                    mDecoration = mLinearDividersListener.getGridBorderDecoration(mViewType)
+                    mDecoration = mLinearDividersListener.getGridSideBorderDecoration(mViewType)
                             ?: return@onDivider
                     if (!(mSpanCount > 1 && mSpanSize != mSpanCount)) {
                         if (mIsOrientationVertical) {
@@ -252,27 +312,8 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
                 }
         )
         cleanupGlobalResources()
+        return outRect
     }
-
-    private val positionOfFirstOfSameViewTypeOrSameGridSet: Int
-        get() = mPositionOfFirstOfSameViewTypeOrSameGridSet ?: let {
-            mPositionOfFirstOfSameViewTypeOrSameGridSet = if (mSpanSize == mSpanCount) {
-                positionOfFirstSameViewType()
-            } else {
-                positionOfFirstSpanSizeNotEqualsSpanCount()
-            }
-            mPositionOfFirstOfSameViewTypeOrSameGridSet!!
-        }
-
-    private val positionOfLastOfSameViewTypeOrSameGridSet: Int
-        get() = mPositionOfLastOfSameViewTypeOrSameGridSet ?: let {
-            mPositionOfLastOfSameViewTypeOrSameGridSet = if (mSpanSize == mSpanCount) {
-                positionOfLastSameViewType()
-            } else {
-                positionOfLastSpanSizeNotEqualsSpanCount()
-            }
-            mPositionOfLastOfSameViewTypeOrSameGridSet!!
-        }
 
     /**
      * Draw horizontal dividers.
@@ -348,7 +389,7 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
                 if (mPosition == 0) {
                     onFirstViewType()
                 } else {
-                    if ((0..mPosition).fold(0) { acc, i -> acc + layoutManager.spanSizeCompat(i) } <= mSpanCount) {
+                    if ((0..mPosition).fold(0) { acc, i -> acc + getSpanSize(i) } <= mSpanCount) {
                         onFirstViewType()
                     }
                 }
@@ -392,14 +433,14 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
             if (mPosition >= adapter.itemCount - mSpanCount) {
                 if (mPosition == adapter.itemCount - 1) {
                     onLastViewType()
-                } else if ((mPosition until adapter.itemCount).fold(0) { acc, i -> acc + layoutManager.spanSizeCompat(i) } <= mSpanCount) {
+                } else if ((mPosition until adapter.itemCount).fold(0) { acc, i -> acc + getSpanSize(i) } <= mSpanCount) {
                     if ((mPosition - positionOfFirstOfSameViewTypeOrSameGridSet) / mSpanCount == (positionOfLastOfSameViewTypeOrSameGridSet - positionOfFirstOfSameViewTypeOrSameGridSet) / mSpanCount) {
                         onLastViewType()
                     }
                 }
             }
+            onGridBorderViewType(mViewType)
         }
-        onGridBorderViewType(mViewType)
     }
 
     /**
@@ -443,7 +484,7 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
                      */
                     drawable.setBounds(
                             view.left - view.marginStart - drawable.intrinsicWidth,
-                             0,
+                            0,
                             view.left - view.marginStart,
                             view.bottom + view.marginBottom
                     )
@@ -522,10 +563,10 @@ class LinearItemDecoration constructor(var mLinearDividersListener: LinearDivide
         }
     }
 
-    private fun positionOfFirstSpanSizeNotEqualsSpanCount(): Int = (mPosition downTo 0).firstOrNull { i -> layoutManager.spanSizeCompat(i) == mSpanCount }?.let { it + 1 }
+    private fun positionOfFirstSpanSizeNotEqualsSpanCount(): Int = (mPosition downTo 0).firstOrNull { i -> getSpanSize(i) == mSpanCount }?.let { it + 1 }
             ?: 0
 
-    private fun positionOfLastSpanSizeNotEqualsSpanCount(): Int = (mPosition until adapter.itemCount).firstOrNull { i -> layoutManager.spanSizeCompat(i) == mSpanCount }?.let { it - 1 }
+    private fun positionOfLastSpanSizeNotEqualsSpanCount(): Int = (mPosition until adapter.itemCount).firstOrNull { i -> getSpanSize(i) == mSpanCount }?.let { it - 1 }
             ?: (adapter.itemCount - 1)
 
     private fun positionOfFirstSameViewType(): Int = (mPosition downTo 0).firstOrNull { i -> adapter.getItemViewType(i) != mViewType }?.let { it + 1 }
