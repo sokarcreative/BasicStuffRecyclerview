@@ -19,11 +19,8 @@ import com.sokarcreative.basicstuffrecyclerview.divider.LinearDividersListener
 import com.sokarcreative.demo.databinding.ViewholderActorsActorBinding
 import com.sokarcreative.demo.models.Actor
 
-class ActorsAdapter(context: Context, var dividersEnabled: MainViewModel.DividersEnabled): RecyclerView.Adapter<ActorsAdapter.ActorViewHolder>(), LinearDividersListener {
+class ActorsAdapter(context: Context, var dividersEnabled: MainViewModel.DividersEnabled): RecyclerView.Adapter<ActorsAdapter.ActorViewHolder>() {
     var actors = emptyList<Actor>()
-
-    val decorationFirstLast = Decoration.Space(context.resources.getDimension(R.dimen.common_horizontal_space).toInt())
-    val decorationDivider = Decoration.Space(context.convertDpToPixel(10f))
 
     override fun getItemCount(): Int = actors.size
 
@@ -39,10 +36,6 @@ class ActorsAdapter(context: Context, var dividersEnabled: MainViewModel.Divider
     override fun onBindViewHolder(holder: ActorViewHolder, position: Int) {
         holder.bind(actors[position])
     }
-
-    override fun getDividerDecoration(viewType: Int): Decoration? = if(!dividersEnabled.isDividerDecorationEnabled) null else decorationDivider
-    override fun getFirstDecoration(viewType: Int): Decoration? = if(!dividersEnabled.isFirstLastDecorationEnabled) null else decorationFirstLast
-    override fun getLastDecoration(viewType: Int): Decoration? = if(!dividersEnabled.isFirstLastDecorationEnabled) null else decorationFirstLast
 
     fun refresh(actors: Set<Actor>) {
         val oldItems = this.actors

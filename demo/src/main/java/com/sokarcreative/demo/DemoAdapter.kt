@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.sokarcreative.basicstuffrecyclerview.Decoration
 import com.sokarcreative.demo.models.*
 import com.sokarcreative.basicstuffrecyclerview.divider.LinearDividersListener
+import com.sokarcreative.basicstuffrecyclerview.divider.LinearDividersListenerBuilder
 import com.sokarcreative.basicstuffrecyclerview.divider.LinearItemDecoration
 import com.sokarcreative.basicstuffrecyclerview.stickyheader.LinearStickyHeadersListener
 import com.sokarcreative.demo.databinding.*
@@ -104,7 +105,7 @@ class DemoAdapter(context: Context, val addMovie: (movie: Movie) -> Unit, val re
         }
     }
 
-    override fun getGridBorderDecoration(viewType: Int): Decoration?  = if(viewType == VIEW_TYPE_MOVIE) decorationGridBorderMovies else null
+    override fun getGridSideBorderDecoration(viewType: Int): Decoration?  = if(viewType == VIEW_TYPE_MOVIE) decorationGridBorderMovies else null
 
     override fun getLastDividerDecoration(viewType: Int, nextViewType: Int): Decoration? = if (!dividersEnabled.isLastDividerDecorationEnabled) null else when {
         viewType == VIEW_TYPE_ACTOR -> lastDecorationActor
@@ -208,14 +209,23 @@ class DemoAdapter(context: Context, val addMovie: (movie: Movie) -> Unit, val re
                         return 1
                     }
                 }
-            };
+            }
         }
 
         fun bind(actors: MainViewModel.Actors) {
             binding.root.removeAllLinearItemDecorations()
 
             if (isDividerFeatureEnabled()) {
-                binding.root.addItemDecoration(LinearItemDecoration(binding.root.adapter as LinearDividersListener))
+                binding.root.addItemDecoration(LinearDividersListenerBuilder()
+                        .apply {
+                            if(dividersEnabled.isFirstLastDecorationEnabled){
+                                defaultFirstLastDecoration(Decoration.Space(itemView.resources.getDimension(R.dimen.common_horizontal_space).toInt()))
+                            }
+                            if(dividersEnabled.isDividerDecorationEnabled){
+                                defaultDividerDecoration(Decoration.Space(itemView.context.convertDpToPixel(10f)))
+                            }
+                        }
+                        .buildAndWrapped())
             }
 
             with(binding.root.adapter as ActorsAdapter) {
@@ -230,7 +240,16 @@ class DemoAdapter(context: Context, val addMovie: (movie: Movie) -> Unit, val re
             (binding.root.adapter as ActorsAdapter).dividersEnabled = this@DemoAdapter.dividersEnabled
             binding.root.removeAllLinearItemDecorations()
             if (isDividerFeatureEnabled()) {
-                binding.root.addItemDecoration(LinearItemDecoration(binding.root.adapter as LinearDividersListener))
+                binding.root.addItemDecoration(LinearDividersListenerBuilder()
+                        .apply {
+                            if(dividersEnabled.isFirstLastDecorationEnabled){
+                                defaultFirstLastDecoration(Decoration.Space(itemView.resources.getDimension(R.dimen.common_horizontal_space).toInt()))
+                            }
+                            if(dividersEnabled.isDividerDecorationEnabled){
+                                defaultDividerDecoration(Decoration.Space(itemView.context.convertDpToPixel(10f)))
+                            }
+                        }
+                        .buildAndWrapped())
             }
         }
     }
